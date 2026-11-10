@@ -7,10 +7,12 @@ class BoxRepository {
   final DatabaseExecutor db;
   BoxRepository(this.db);
 
-  Future<List<Box>> activeForProduct(int productId) async => (await db.query('boxes',
-          where: 'product_id = ? AND archived = 0', whereArgs: [productId], orderBy: 'expires_on, id'))
-      .map(Box.fromMap)
-      .toList();
+  Future<List<Box>> activeForProduct(int productId) async => (await db.query(
+    'boxes',
+    where: 'product_id = ? AND archived = 0',
+    whereArgs: [productId],
+    orderBy: 'expires_on, id',
+  )).map(Box.fromMap).toList();
 
   Future<List<Box>> allActive() async =>
       (await db.query('boxes', where: 'archived = 0', orderBy: 'expires_on, id')).map(Box.fromMap).toList();

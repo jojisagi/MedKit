@@ -61,57 +61,64 @@ class BoxFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-        listenable: draft,
-        builder: (context, _) {
-          final t = context.sign;
-          final today = dateOnly(DateTime.now());
-          final expired = draft.expiresOn != null && dateOnly(draft.expiresOn!).isBefore(today);
-          return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            FormField<DateTime>(
-              validator: (_) => draft.expiresOn == null ? 'Indica la fecha de caducidad' : null,
-              builder: (state) => InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () => _pickDate(context),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'Caducidad',
-                    errorText: state.errorText,
-                    suffixIcon: const Icon(Icons.event_rounded),
-                    helperText: expired ? null : 'Viene impresa en la caja como CAD o EXP.',
-                  ),
-                  child: Text(
-                    draft.expiresOn == null ? 'Elegir fecha' : fmtDate(draft.expiresOn!),
-                    style: numerals(context.text.bodyLarge!.copyWith(color: draft.expiresOn == null ? t.inkFaint : t.ink)),
+    listenable: draft,
+    builder: (context, _) {
+      final t = context.sign;
+      final today = dateOnly(DateTime.now());
+      final expired = draft.expiresOn != null && dateOnly(draft.expiresOn!).isBefore(today);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          FormField<DateTime>(
+            validator: (_) => draft.expiresOn == null ? 'Indica la fecha de caducidad' : null,
+            builder: (state) => InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => _pickDate(context),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: 'Caducidad',
+                  errorText: state.errorText,
+                  suffixIcon: const Icon(Icons.event_rounded),
+                  helperText: expired ? null : 'Viene impresa en la caja como CAD o EXP.',
+                ),
+                child: Text(
+                  draft.expiresOn == null ? 'Elegir fecha' : fmtDate(draft.expiresOn!),
+                  style: numerals(
+                    context.text.bodyLarge!.copyWith(color: draft.expiresOn == null ? t.inkFaint : t.ink),
                   ),
                 ),
               ),
             ),
-            if (expired) ...[
-              const SizedBox(height: 8),
-              const Notice(
-                tone: NoticeTone.danger,
-                icon: Icons.block_rounded,
-                title: 'Esta caja ya caducó',
-                body: 'Puedes registrarla, pero no se usará para descontar tomas.',
-              ),
-            ],
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: draft.units,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-              style: numerals(context.text.bodyLarge!),
-              decoration: InputDecoration(labelText: 'Unidades en la caja', suffixText: unitLabel),
-              validator: (_) {
-                final v = draft.unitsValue;
-                if (v == null || v <= 0) return 'Escribe cuántas unidades tiene';
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
-            Text('¿De quién es?', style: context.text.titleSmall),
+          ),
+          if (expired) ...[
             const SizedBox(height: 8),
-            Wrap(spacing: 8, runSpacing: 8, children: [
+            const Notice(
+              tone: NoticeTone.danger,
+              icon: Icons.block_rounded,
+              title: 'Esta caja ya caducó',
+              body: 'Puedes registrarla, pero no se usará para descontar tomas.',
+            ),
+          ],
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: draft.units,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+            style: numerals(context.text.bodyLarge!),
+            decoration: InputDecoration(labelText: 'Unidades en la caja', suffixText: unitLabel),
+            validator: (_) {
+              final v = draft.unitsValue;
+              if (v == null || v <= 0) return 'Escribe cuántas unidades tiene';
+              return null;
+            },
+          ),
+          const SizedBox(height: 20),
+          Text('¿De quién es?', style: context.text.titleSmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
               ChoiceChip(
                 avatar: const Icon(Icons.groups_2_outlined, size: 20),
                 label: const Text('Compartida'),
@@ -125,19 +132,23 @@ class BoxFields extends StatelessWidget {
                   selected: draft.profileId == p.id,
                   onSelected: (_) => draft.setOwner(p.id),
                 ),
-            ]),
-            const SizedBox(height: 6),
-            Text('Las tomas de cada persona usan primero sus cajas y luego las compartidas.',
-                style: context.text.bodySmall),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: draft.lot,
-              textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(labelText: 'Lote (opcional)'),
-            ),
-          ]);
-        },
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Las tomas de cada persona usan primero sus cajas y luego las compartidas.',
+            style: context.text.bodySmall,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: draft.lot,
+            textCapitalization: TextCapitalization.characters,
+            decoration: const InputDecoration(labelText: 'Lote (opcional)'),
+          ),
+        ],
       );
+    },
+  );
 }
 
 Box boxFromDraft(BoxDraft d, int productId) {

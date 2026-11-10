@@ -53,8 +53,7 @@ String formatFixedTimes(List<(int, int)> times) =>
 List<DateTime> scheduleBetween(Treatment t, DateTime from, DateTime to) {
   final out = <DateTime>[];
   final lower = from.isAfter(t.startsAt) ? from : t.startsAt;
-  bool inRange(DateTime d) =>
-      !d.isBefore(lower) && d.isBefore(to) && (t.endsAt == null || !d.isAfter(t.endsAt!));
+  bool inRange(DateTime d) => !d.isBefore(lower) && d.isBefore(to) && (t.endsAt == null || !d.isAfter(t.endsAt!));
 
   switch (t.scheduleType) {
     case ScheduleType.interval:
@@ -87,9 +86,9 @@ List<DateTime> scheduleBetween(Treatment t, DateTime from, DateTime to) {
 }
 
 double takesPerDay(Treatment t) => switch (t.scheduleType) {
-      ScheduleType.interval => (t.intervalHours ?? 0) > 0 ? 24 / t.intervalHours! : 0,
-      ScheduleType.fixed => parseFixedTimes(t.fixedTimes).length.toDouble(),
-    };
+  ScheduleType.interval => (t.intervalHours ?? 0) > 0 ? 24 / t.intervalHours! : 0,
+  ScheduleType.fixed => parseFixedTimes(t.fixedTimes).length.toDouble(),
+};
 
 enum ScanMatchKind { confirmOne, choose, noPending, unknownProduct, wrongProduct }
 

@@ -50,13 +50,14 @@ class DoseConfirmationService {
         missAfterMin: t.missAfterMin,
       );
       final boxes = BoxRepository(txn);
-      final plan = planDeduction(await boxes.activeForProduct(t.productId), t.dose,
-          profileId: t.profileId, today: at);
-      final updated = await doses.markConfirmed(doseId,
-          status: status,
-          confirmedAt: at,
-          method: method,
-          boxId: plan.deductions.isEmpty ? null : plan.deductions.first.boxId);
+      final plan = planDeduction(await boxes.activeForProduct(t.productId), t.dose, profileId: t.profileId, today: at);
+      final updated = await doses.markConfirmed(
+        doseId,
+        status: status,
+        confirmedAt: at,
+        method: method,
+        boxId: plan.deductions.isEmpty ? null : plan.deductions.first.boxId,
+      );
       if (!updated) return ConfirmResult(status: status, alreadyConfirmed: true);
       await boxes.applyDeductions(plan.deductions);
       return ConfirmResult(status: status, shortfall: plan.shortfall);

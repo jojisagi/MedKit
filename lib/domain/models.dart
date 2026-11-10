@@ -37,18 +37,18 @@ class Profile {
       Profile(id: id ?? this.id, name: name ?? this.name, color: color ?? this.color, createdAt: createdAt);
 
   Map<String, Object?> toMap() => {
-        if (id != null) 'id': id,
-        'name': name,
-        'color': color,
-        'created_at': _ms(createdAt),
-      };
+    if (id != null) 'id': id,
+    'name': name,
+    'color': color,
+    'created_at': _ms(createdAt),
+  };
 
   factory Profile.fromMap(Map<String, Object?> m) => Profile(
-        id: m['id'] as int?,
-        name: m['name'] as String,
-        color: (m['color'] as int?) ?? 0xFF2F6F5E,
-        createdAt: _dt(m['created_at']) ?? DateTime.now(),
-      );
+    id: m['id'] as int?,
+    name: m['name'] as String,
+    color: (m['color'] as int?) ?? 0xFF2F6F5E,
+    createdAt: _dt(m['created_at']) ?? DateTime.now(),
+  );
 }
 
 const productForms = ['tableta', 'cápsula', 'jarabe', 'gotas', 'suspensión', 'otro'];
@@ -85,39 +85,38 @@ class Product {
     String? form,
     String? unit,
     double? unitsPerBox,
-  }) =>
-      Product(
-        id: id ?? this.id,
-        gtin: identical(gtin, _keep) ? this.gtin : gtin as String?,
-        name: name ?? this.name,
-        activeIngredient: identical(activeIngredient, _keep) ? this.activeIngredient : activeIngredient as String?,
-        strength: identical(strength, _keep) ? this.strength : strength as String?,
-        form: form ?? this.form,
-        unit: unit ?? this.unit,
-        unitsPerBox: unitsPerBox ?? this.unitsPerBox,
-      );
+  }) => Product(
+    id: id ?? this.id,
+    gtin: identical(gtin, _keep) ? this.gtin : gtin as String?,
+    name: name ?? this.name,
+    activeIngredient: identical(activeIngredient, _keep) ? this.activeIngredient : activeIngredient as String?,
+    strength: identical(strength, _keep) ? this.strength : strength as String?,
+    form: form ?? this.form,
+    unit: unit ?? this.unit,
+    unitsPerBox: unitsPerBox ?? this.unitsPerBox,
+  );
 
   Map<String, Object?> toMap() => {
-        if (id != null) 'id': id,
-        'gtin': gtin,
-        'name': name,
-        'active_ingredient': activeIngredient,
-        'strength': strength,
-        'form': form,
-        'unit': unit,
-        'units_per_box': unitsPerBox,
-      };
+    if (id != null) 'id': id,
+    'gtin': gtin,
+    'name': name,
+    'active_ingredient': activeIngredient,
+    'strength': strength,
+    'form': form,
+    'unit': unit,
+    'units_per_box': unitsPerBox,
+  };
 
   factory Product.fromMap(Map<String, Object?> m) => Product(
-        id: m['id'] as int?,
-        gtin: m['gtin'] as String?,
-        name: m['name'] as String,
-        activeIngredient: m['active_ingredient'] as String?,
-        strength: m['strength'] as String?,
-        form: (m['form'] as String?) ?? 'otro',
-        unit: (m['unit'] as String?) ?? 'pza',
-        unitsPerBox: _d(m['units_per_box']),
-      );
+    id: m['id'] as int?,
+    gtin: m['gtin'] as String?,
+    name: m['name'] as String,
+    activeIngredient: m['active_ingredient'] as String?,
+    strength: m['strength'] as String?,
+    form: (m['form'] as String?) ?? 'otro',
+    unit: (m['unit'] as String?) ?? 'pza',
+    unitsPerBox: _d(m['units_per_box']),
+  );
 }
 
 class Box {
@@ -144,40 +143,40 @@ class Box {
   });
 
   Box copyWith({int? id, double? unitsLeft, bool? archived, Object? profileId = _keep}) => Box(
-        id: id ?? this.id,
-        productId: productId,
-        profileId: identical(profileId, _keep) ? this.profileId : profileId as int?,
-        unitsInitial: unitsInitial,
-        unitsLeft: unitsLeft ?? this.unitsLeft,
-        expiresOn: expiresOn,
-        lot: lot,
-        addedAt: addedAt,
-        archived: archived ?? this.archived,
-      );
+    id: id ?? this.id,
+    productId: productId,
+    profileId: identical(profileId, _keep) ? this.profileId : profileId as int?,
+    unitsInitial: unitsInitial,
+    unitsLeft: unitsLeft ?? this.unitsLeft,
+    expiresOn: expiresOn,
+    lot: lot,
+    addedAt: addedAt,
+    archived: archived ?? this.archived,
+  );
 
   Map<String, Object?> toMap() => {
-        if (id != null) 'id': id,
-        'product_id': productId,
-        'profile_id': profileId,
-        'units_initial': unitsInitial,
-        'units_left': unitsLeft,
-        'expires_on': _ms(expiresOn),
-        'lot': lot,
-        'added_at': _ms(addedAt),
-        'archived': archived ? 1 : 0,
-      };
+    if (id != null) 'id': id,
+    'product_id': productId,
+    'profile_id': profileId,
+    'units_initial': unitsInitial,
+    'units_left': unitsLeft,
+    'expires_on': _ms(expiresOn),
+    'lot': lot,
+    'added_at': _ms(addedAt),
+    'archived': archived ? 1 : 0,
+  };
 
   factory Box.fromMap(Map<String, Object?> m) => Box(
-        id: m['id'] as int?,
-        productId: m['product_id'] as int,
-        profileId: m['profile_id'] as int?,
-        unitsInitial: _d(m['units_initial']),
-        unitsLeft: _d(m['units_left']),
-        expiresOn: _dt(m['expires_on'])!,
-        lot: m['lot'] as String?,
-        addedAt: _dt(m['added_at']) ?? DateTime.now(),
-        archived: (m['archived'] as int? ?? 0) == 1,
-      );
+    id: m['id'] as int?,
+    productId: m['product_id'] as int,
+    profileId: m['profile_id'] as int?,
+    unitsInitial: _d(m['units_initial']),
+    unitsLeft: _d(m['units_left']),
+    expiresOn: _dt(m['expires_on'])!,
+    lot: m['lot'] as String?,
+    addedAt: _dt(m['added_at']) ?? DateTime.now(),
+    archived: (m['archived'] as int? ?? 0) == 1,
+  );
 }
 
 class Treatment {
@@ -218,54 +217,53 @@ class Treatment {
     Object? endsAt = _keep,
     int? toleranceMin,
     int? missAfterMin,
-  }) =>
-      Treatment(
-        id: id ?? this.id,
-        profileId: profileId,
-        productId: productId,
-        dose: dose ?? this.dose,
-        scheduleType: scheduleType,
-        intervalHours: intervalHours,
-        fixedTimes: fixedTimes,
-        startsAt: startsAt,
-        endsAt: identical(endsAt, _keep) ? this.endsAt : endsAt as DateTime?,
-        toleranceMin: toleranceMin ?? this.toleranceMin,
-        missAfterMin: missAfterMin ?? this.missAfterMin,
-        notes: notes,
-        active: active ?? this.active,
-      );
+  }) => Treatment(
+    id: id ?? this.id,
+    profileId: profileId,
+    productId: productId,
+    dose: dose ?? this.dose,
+    scheduleType: scheduleType,
+    intervalHours: intervalHours,
+    fixedTimes: fixedTimes,
+    startsAt: startsAt,
+    endsAt: identical(endsAt, _keep) ? this.endsAt : endsAt as DateTime?,
+    toleranceMin: toleranceMin ?? this.toleranceMin,
+    missAfterMin: missAfterMin ?? this.missAfterMin,
+    notes: notes,
+    active: active ?? this.active,
+  );
 
   Map<String, Object?> toMap() => {
-        if (id != null) 'id': id,
-        'profile_id': profileId,
-        'product_id': productId,
-        'dose': dose,
-        'schedule_type': scheduleType.name,
-        'interval_hours': intervalHours,
-        'fixed_times': fixedTimes,
-        'starts_at': _ms(startsAt),
-        'ends_at': _ms(endsAt),
-        'tolerance_min': toleranceMin,
-        'miss_after_min': missAfterMin,
-        'notes': notes,
-        'active': active ? 1 : 0,
-      };
+    if (id != null) 'id': id,
+    'profile_id': profileId,
+    'product_id': productId,
+    'dose': dose,
+    'schedule_type': scheduleType.name,
+    'interval_hours': intervalHours,
+    'fixed_times': fixedTimes,
+    'starts_at': _ms(startsAt),
+    'ends_at': _ms(endsAt),
+    'tolerance_min': toleranceMin,
+    'miss_after_min': missAfterMin,
+    'notes': notes,
+    'active': active ? 1 : 0,
+  };
 
   factory Treatment.fromMap(Map<String, Object?> m) => Treatment(
-        id: m['id'] as int?,
-        profileId: m['profile_id'] as int,
-        productId: m['product_id'] as int,
-        dose: _d(m['dose']),
-        scheduleType: ScheduleType.values.byName(m['schedule_type'] as String),
-        intervalHours: m['interval_hours'] as int?,
-        fixedTimes: m['fixed_times'] as String?,
-        startsAt: _dt(m['starts_at'])!,
-        endsAt: _dt(m['ends_at']),
-        toleranceMin: (m['tolerance_min'] as int?) ?? 10,
-        missAfterMin: (m['miss_after_min'] as int?) ?? 60,
-        notes: m['notes'] as String?,
-        active: (m['active'] as int? ?? 1) == 1,
-      );
+    id: m['id'] as int?,
+    profileId: m['profile_id'] as int,
+    productId: m['product_id'] as int,
+    dose: _d(m['dose']),
+    scheduleType: ScheduleType.values.byName(m['schedule_type'] as String),
+    intervalHours: m['interval_hours'] as int?,
+    fixedTimes: m['fixed_times'] as String?,
+    startsAt: _dt(m['starts_at'])!,
+    endsAt: _dt(m['ends_at']),
+    toleranceMin: (m['tolerance_min'] as int?) ?? 10,
+    missAfterMin: (m['miss_after_min'] as int?) ?? 60,
+    notes: m['notes'] as String?,
+    active: (m['active'] as int? ?? 1) == 1,
+  );
 }
 
 class Dose {
@@ -290,32 +288,32 @@ class Dose {
   bool get isConfirmed => status == DoseStatus.onTime || status == DoseStatus.late;
 
   Dose copyWith({int? id, DateTime? confirmedAt, DoseStatus? status, ConfirmMethod? method, int? boxId}) => Dose(
-        id: id ?? this.id,
-        treatmentId: treatmentId,
-        scheduledAt: scheduledAt,
-        confirmedAt: confirmedAt ?? this.confirmedAt,
-        status: status ?? this.status,
-        method: method ?? this.method,
-        boxId: boxId ?? this.boxId,
-      );
+    id: id ?? this.id,
+    treatmentId: treatmentId,
+    scheduledAt: scheduledAt,
+    confirmedAt: confirmedAt ?? this.confirmedAt,
+    status: status ?? this.status,
+    method: method ?? this.method,
+    boxId: boxId ?? this.boxId,
+  );
 
   Map<String, Object?> toMap() => {
-        if (id != null) 'id': id,
-        'treatment_id': treatmentId,
-        'scheduled_at': _ms(scheduledAt),
-        'confirmed_at': _ms(confirmedAt),
-        'status': status.db,
-        'method': method?.name,
-        'box_id': boxId,
-      };
+    if (id != null) 'id': id,
+    'treatment_id': treatmentId,
+    'scheduled_at': _ms(scheduledAt),
+    'confirmed_at': _ms(confirmedAt),
+    'status': status.db,
+    'method': method?.name,
+    'box_id': boxId,
+  };
 
   factory Dose.fromMap(Map<String, Object?> m) => Dose(
-        id: m['id'] as int?,
-        treatmentId: m['treatment_id'] as int,
-        scheduledAt: _dt(m['scheduled_at'])!,
-        confirmedAt: _dt(m['confirmed_at']),
-        status: DoseStatusDb.parse(m['status'] as String),
-        method: m['method'] == null ? null : ConfirmMethod.values.byName(m['method'] as String),
-        boxId: m['box_id'] as int?,
-      );
+    id: m['id'] as int?,
+    treatmentId: m['treatment_id'] as int,
+    scheduledAt: _dt(m['scheduled_at'])!,
+    confirmedAt: _dt(m['confirmed_at']),
+    status: DoseStatusDb.parse(m['status'] as String),
+    method: m['method'] == null ? null : ConfirmMethod.values.byName(m['method'] as String),
+    boxId: m['box_id'] as int?,
+  );
 }

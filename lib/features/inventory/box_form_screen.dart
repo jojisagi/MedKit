@@ -62,28 +62,41 @@ class _BoxFormScreenState extends ConsumerState<BoxFormScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _form,
-              child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
-                Plate(
-                  child: Row(children: [
-                    Icon(Icons.verified_rounded, color: context.sign.onPlate, size: 30),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(productTitle(p), style: context.text.titleLarge!.copyWith(color: context.sign.onPlate)),
-                        const SizedBox(height: 2),
-                        Text(
-                          p.gtin == null ? 'Ya está en tu catálogo' : 'Reconocido por su código · datos precargados',
-                          style: context.text.bodyMedium!.copyWith(color: context.sign.onPlateSoft),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                children: [
+                  Plate(
+                    child: Row(
+                      children: [
+                        Icon(Icons.verified_rounded, color: context.sign.onPlate, size: 30),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                productTitle(p),
+                                style: context.text.titleLarge!.copyWith(color: context.sign.onPlate),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                p.gtin == null
+                                    ? 'Ya está en tu catálogo'
+                                    : 'Reconocido por su código · datos precargados',
+                                style: context.text.bodyMedium!.copyWith(color: context.sign.onPlateSoft),
+                              ),
+                            ],
+                          ),
                         ),
-                      ]),
+                      ],
                     ),
-                  ]),
-                ),
-                const SizedBox(height: 24),
-                BoxFields(draft: _draft, profiles: profiles, unitLabel: p.unit == 'ml' ? 'ml' : 'pzas'),
-                const SizedBox(height: 28),
-                FilledButton(onPressed: _saving ? null : _save, child: const Text('Guardar caja')),
-              ]),
+                  ),
+                  const SizedBox(height: 24),
+                  BoxFields(draft: _draft, profiles: profiles, unitLabel: p.unit == 'ml' ? 'ml' : 'pzas'),
+                  const SizedBox(height: 28),
+                  FilledButton(onPressed: _saving ? null : _save, child: const Text('Guardar caja')),
+                ],
+              ),
             ),
     );
   }

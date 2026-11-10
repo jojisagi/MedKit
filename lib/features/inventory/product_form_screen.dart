@@ -35,8 +35,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   String _unit = 'pza';
   String? _gtin;
   Product? _editing;
-  late final BoxDraft _box =
-      BoxDraft(expiresOn: parseIsoDate(widget.expires), lot: widget.lot);
+  late final BoxDraft _box = BoxDraft(expiresOn: parseIsoDate(widget.expires), lot: widget.lot);
   bool _saving = false;
 
   bool get _isEdit => widget.productId != null;
@@ -141,93 +140,120 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       appBar: AppBar(title: Text(_isEdit ? 'Editar medicamento' : 'Nuevo medicamento')),
       body: Form(
         key: _form,
-        child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
-          // Código de barras: fijo si vino del escáner.
-          Panel(
-            child: Row(children: [
-              Icon(_gtin == null ? Icons.qr_code_2_rounded : Icons.verified_outlined,
-                  color: _gtin == null ? t.inkSoft : zoneOn(context, Palette.ok), size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(_gtin == null ? 'Sin código de barras' : 'Código de barras', style: context.text.titleSmall),
-                  Text(_gtin ?? 'Escanéalo para reconocer esta caja la próxima vez.',
-                      style: _gtin == null ? context.text.bodySmall : numerals(context.text.bodyMedium!)),
-                ]),
-              ),
-              if (widget.gtin == null)
-                TextButton(onPressed: _scanCode, child: Text(_gtin == null ? 'Escanear' : 'Cambiar')),
-            ]),
-          ),
-          const SizedBox(height: 20),
-          TextFormField(
-            controller: _name,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(labelText: 'Nombre comercial', hintText: 'Ej. Ibuprofeno'),
-            validator: (v) => (v ?? '').trim().isEmpty ? 'El nombre es obligatorio' : null,
-          ),
-          const SizedBox(height: 16),
-          Row(children: [
-            Expanded(
-              child: TextFormField(
-                controller: _ingredient,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(labelText: 'Sustancia activa'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 132,
-              child: TextFormField(
-                controller: _strength,
-                decoration: const InputDecoration(labelText: 'Concentración', hintText: '500 mg'),
-              ),
-            ),
-          ]),
-          const SizedBox(height: 20),
-          Text('Presentación', style: context.text.titleSmall),
-          const SizedBox(height: 8),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final f in productForms)
-              ChoiceChip(
-                label: Text(f[0].toUpperCase() + f.substring(1)),
-                selected: _presentation == f,
-                onSelected: (_) => setState(() {
-                  _presentation = f;
-                  _unit = (f == 'jarabe' || f == 'suspensión') ? 'ml' : 'pza';
-                }),
-              ),
-          ]),
-          const SizedBox(height: 20),
-          Row(children: [
-            Expanded(
-              child: SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'pza', label: Text('Piezas')),
-                  ButtonSegment(value: 'ml', label: Text('Mililitros')),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+          children: [
+            // Código de barras: fijo si vino del escáner.
+            Panel(
+              child: Row(
+                children: [
+                  Icon(
+                    _gtin == null ? Icons.qr_code_2_rounded : Icons.verified_outlined,
+                    color: _gtin == null ? t.inkSoft : zoneOn(context, Palette.ok),
+                    size: 28,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _gtin == null ? 'Sin código de barras' : 'Código de barras',
+                          style: context.text.titleSmall,
+                        ),
+                        Text(
+                          _gtin ?? 'Escanéalo para reconocer esta caja la próxima vez.',
+                          style: _gtin == null ? context.text.bodySmall : numerals(context.text.bodyMedium!),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (widget.gtin == null)
+                    TextButton(onPressed: _scanCode, child: Text(_gtin == null ? 'Escanear' : 'Cambiar')),
                 ],
-                selected: {_unit},
-                onSelectionChanged: (s) => setState(() => _unit = s.first),
               ),
             ),
-          ]),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _perBox,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: numerals(context.text.bodyLarge!),
-            decoration: InputDecoration(labelText: 'Contenido de una caja nueva', suffixText: _unit == 'ml' ? 'ml' : 'pzas'),
-          ),
-          if (!_isEdit) ...[
-            const SectionTitle('Esta caja', padding: EdgeInsets.fromLTRB(0, 32, 0, 12)),
-            BoxFields(draft: _box, profiles: profiles, unitLabel: _unit == 'ml' ? 'ml' : 'pzas'),
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: _name,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(labelText: 'Nombre comercial', hintText: 'Ej. Ibuprofeno'),
+              validator: (v) => (v ?? '').trim().isEmpty ? 'El nombre es obligatorio' : null,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _ingredient,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(labelText: 'Sustancia activa'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 132,
+                  child: TextFormField(
+                    controller: _strength,
+                    decoration: const InputDecoration(labelText: 'Concentración', hintText: '500 mg'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Text('Presentación', style: context.text.titleSmall),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final f in productForms)
+                  ChoiceChip(
+                    label: Text(f[0].toUpperCase() + f.substring(1)),
+                    selected: _presentation == f,
+                    onSelected: (_) => setState(() {
+                      _presentation = f;
+                      _unit = (f == 'jarabe' || f == 'suspensión') ? 'ml' : 'pza';
+                    }),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(value: 'pza', label: Text('Piezas')),
+                      ButtonSegment(value: 'ml', label: Text('Mililitros')),
+                    ],
+                    selected: {_unit},
+                    onSelectionChanged: (s) => setState(() => _unit = s.first),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _perBox,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              style: numerals(context.text.bodyLarge!),
+              decoration: InputDecoration(
+                labelText: 'Contenido de una caja nueva',
+                suffixText: _unit == 'ml' ? 'ml' : 'pzas',
+              ),
+            ),
+            if (!_isEdit) ...[
+              const SectionTitle('Esta caja', padding: EdgeInsets.fromLTRB(0, 32, 0, 12)),
+              BoxFields(draft: _box, profiles: profiles, unitLabel: _unit == 'ml' ? 'ml' : 'pzas'),
+            ],
+            const SizedBox(height: 28),
+            FilledButton(
+              onPressed: _saving ? null : _save,
+              child: Text(_isEdit ? 'Guardar cambios' : 'Guardar medicamento y caja'),
+            ),
           ],
-          const SizedBox(height: 28),
-          FilledButton(
-            onPressed: _saving ? null : _save,
-            child: Text(_isEdit ? 'Guardar cambios' : 'Guardar medicamento y caja'),
-          ),
-        ]),
+        ),
       ),
     );
   }

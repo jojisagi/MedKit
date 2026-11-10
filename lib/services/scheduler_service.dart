@@ -28,8 +28,9 @@ class SchedulerService {
         final floor = at.subtract(backfillLimit);
         if (from.isBefore(floor)) from = floor;
         final times = scheduleBetween(t, from, at.add(scheduleWindow));
-        out.addAll(await doses.insertIgnoreDuplicates(
-            [for (final s in times) Dose(treatmentId: t.id!, scheduledAt: s)]));
+        out.addAll(
+          await doses.insertIgnoreDuplicates([for (final s in times) Dose(treatmentId: t.id!, scheduledAt: s)]),
+        );
       }
       await doses.markMissed(at);
       return out;

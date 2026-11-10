@@ -40,7 +40,12 @@ class ProfileDetailScreen extends ConsumerWidget {
     final data = ref.watch(_profileDetail(profileId)).value;
     if (data == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
     final (p, rows) = data;
-    if (p == null) return Scaffold(appBar: AppBar(), body: const Center(child: Text('Esta persona ya no existe.')));
+    if (p == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const Center(child: Text('Esta persona ya no existe.')),
+      );
+    }
     final active = rows.where((r) => r.treatment.active).toList();
     final ended = rows.where((r) => !r.treatment.active).toList();
     final zone = Color(p.color);
@@ -71,28 +76,38 @@ class ProfileDetailScreen extends ConsumerWidget {
         icon: const Icon(Icons.add_rounded),
         label: const Text('Nuevo tratamiento'),
       ),
-      body: ListView(padding: const EdgeInsets.fromLTRB(16, 0, 16, 120), children: [
-        Row(children: [
-          ProfileAvatar(p, size: 64),
-          const SizedBox(width: 16),
-          Expanded(child: Text(p.name, style: context.text.headlineLarge)),
-        ]),
-        const SizedBox(height: 16),
-        // Su línea: franja continua que conecta todo lo de esta persona.
-        Container(height: 8, decoration: BoxDecoration(color: zone, borderRadius: BorderRadius.circular(4))),
-        const SectionTitle('Tratamientos activos', padding: EdgeInsets.fromLTRB(4, 24, 0, 10)),
-        if (active.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text('Sin tratamientos activos. Agrega uno para programar sus tomas y recordatorios.',
-                style: context.text.bodyMedium),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
+        children: [
+          Row(
+            children: [
+              ProfileAvatar(p, size: 64),
+              const SizedBox(width: 16),
+              Expanded(child: Text(p.name, style: context.text.headlineLarge)),
+            ],
           ),
-        for (final r in active) ...[_TreatmentPanel(row: r, zone: zone), const SizedBox(height: 10)],
-        if (ended.isNotEmpty) ...[
-          const SectionTitle('Terminados', padding: EdgeInsets.fromLTRB(4, 24, 0, 10)),
-          for (final r in ended) ...[_TreatmentPanel(row: r, zone: zone), const SizedBox(height: 10)],
+          const SizedBox(height: 16),
+          // Su línea: franja continua que conecta todo lo de esta persona.
+          Container(
+            height: 8,
+            decoration: BoxDecoration(color: zone, borderRadius: BorderRadius.circular(4)),
+          ),
+          const SectionTitle('Tratamientos activos', padding: EdgeInsets.fromLTRB(4, 24, 0, 10)),
+          if (active.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'Sin tratamientos activos. Agrega uno para programar sus tomas y recordatorios.',
+                style: context.text.bodyMedium,
+              ),
+            ),
+          for (final r in active) ...[_TreatmentPanel(row: r, zone: zone), const SizedBox(height: 10)],
+          if (ended.isNotEmpty) ...[
+            const SectionTitle('Terminados', padding: EdgeInsets.fromLTRB(4, 24, 0, 10)),
+            for (final r in ended) ...[_TreatmentPanel(row: r, zone: zone), const SizedBox(height: 10)],
+          ],
         ],
-      ]),
+      ),
     );
   }
 
@@ -101,8 +116,10 @@ class ProfileDetailScreen extends ConsumerWidget {
       context: context,
       builder: (d) => AlertDialog(
         title: Text('¿Eliminar a ${p.name}?'),
-        content: const Text('Se borran sus tratamientos e historial. Sus cajas pasan a ser compartidas. '
-            'No se puede deshacer.'),
+        content: const Text(
+          'Se borran sus tratamientos e historial. Sus cajas pasan a ser compartidas. '
+          'No se puede deshacer.',
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancelar')),
           FilledButton(
@@ -133,28 +150,41 @@ class _TreatmentPanel extends StatelessWidget {
     final t = row.treatment;
     return Panel(
       onTap: () => context.push('/treatments/${t.id}'),
-      child: Row(children: [
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(productTitle(row.product), style: context.text.titleMedium),
-            const SizedBox(height: 2),
-            Text('${doseLabel(row.product, t.dose)} · ${scheduleText(t)}', style: numerals(context.text.bodyMedium!)),
-            if (t.endsAt != null) ...[
-              const SizedBox(height: 2),
-              Text(t.active ? 'Hasta el ${fmtDateShort(t.endsAt!)}' : 'Terminó el ${fmtDateShort(t.endsAt!)}',
-                  style: numerals(context.text.bodySmall!)),
-            ],
-          ]),
-        ),
-        if (row.compliance != null) ...[
-          const SizedBox(width: 12),
-          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(pct(row.compliance!), style: numerals(context.text.titleLarge!)),
-            Text('cumplimiento', style: context.text.bodySmall),
-          ]),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(productTitle(row.product), style: context.text.titleMedium),
+                const SizedBox(height: 2),
+                Text(
+                  '${doseLabel(row.product, t.dose)} · ${scheduleText(t)}',
+                  style: numerals(context.text.bodyMedium!),
+                ),
+                if (t.endsAt != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    t.active ? 'Hasta el ${fmtDateShort(t.endsAt!)}' : 'Terminó el ${fmtDateShort(t.endsAt!)}',
+                    style: numerals(context.text.bodySmall!),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (row.compliance != null) ...[
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(pct(row.compliance!), style: numerals(context.text.titleLarge!)),
+                Text('cumplimiento', style: context.text.bodySmall),
+              ],
+            ),
+          ],
+          Icon(Icons.chevron_right_rounded, color: context.sign.inkFaint),
         ],
-        Icon(Icons.chevron_right_rounded, color: context.sign.inkFaint),
-      ]),
+      ),
     );
   }
 }

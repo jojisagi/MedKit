@@ -69,13 +69,21 @@ final todayDosesProvider = FutureProvider<List<DoseDetail>>((ref) async {
   return repo.detailsBetween(start, start.add(const Duration(days: 1)));
 });
 
+/// Próxima toma pendiente aunque sea de otro día (para la placa cuando hoy ya terminó).
+final nextPendingProvider = FutureProvider<DoseDetail?>((ref) async {
+  ref.watch(dataVersionProvider);
+  final now = DateTime.now();
+  final repo = ref.watch(doseRepoProvider);
+  final next = await repo.pendingBetween(now.subtract(const Duration(hours: 2)), now.add(const Duration(days: 4)));
+  return next.isEmpty ? null : repo.detail(next.first.id!);
+});
+
 class ProductStock {
   final Product product;
   final List<Box> boxes;
   const ProductStock(this.product, this.boxes);
 
-  double unitsUsable(DateTime today) =>
-      boxes.where((b) => !isExpired(b, today)).fold(0.0, (s, b) => s + b.unitsLeft);
+  double unitsUsable(DateTime today) => boxes.where((b) => !isExpired(b, today)).fold(0.0, (s, b) => s + b.unitsLeft);
   Box? get nextToExpire => boxes.isEmpty ? null : boxes.first;
 }
 
@@ -83,9 +91,7 @@ final inventoryProvider = FutureProvider<List<ProductStock>>((ref) async {
   ref.watch(dataVersionProvider);
   final products = await ref.watch(productRepoProvider).all();
   final boxes = await ref.watch(boxRepoProvider).allActive();
-  return [
-    for (final p in products) ProductStock(p, boxes.where((b) => b.productId == p.id).toList()),
-  ];
+  return [for (final p in products) ProductStock(p, boxes.where((b) => b.productId == p.id).toList())];
 });
 
 class LowStock {
@@ -169,7 +175,10 @@ class AppActions {
   Future<void> rescheduleAll() async {
     final now = DateTime.now();
     final repo = ref.read(doseRepoProvider);
-    for (final d in await repo.detailsBetween(now.subtract(const Duration(hours: 2)), now.add(const Duration(days: 4)))) {
+    for (final d in await repo.detailsBetween(
+      now.subtract(const Duration(hours: 2)),
+      now.add(const Duration(days: 4)),
+    )) {
       await _n.scheduleDose(d);
     }
   }

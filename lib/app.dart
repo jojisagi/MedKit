@@ -31,11 +31,13 @@ class _MiBotiquinAppState extends ConsumerState<MiBotiquinApp> with WidgetsBindi
     // Tocar la notificación abre el escáner con la toma preseleccionada (SPEC §5).
     _subs.add(n.taps.listen((id) => _router.push('/confirm-scan?doseId=$id')));
     // "Ya la tomé" con la app abierta.
-    _subs.add(n.confirms.listen((id) async {
-      final r = await ref.read(actionsProvider).confirm(id, ConfirmMethod.notification);
-      final ctx = rootKey.currentContext;
-      if (ctx != null && ctx.mounted) showConfirmResult(ctx, r);
-    }));
+    _subs.add(
+      n.confirms.listen((id) async {
+        final r = await ref.read(actionsProvider).confirm(id, ConfirmMethod.notification);
+        final ctx = rootKey.currentContext;
+        if (ctx != null && ctx.mounted) showConfirmResult(ctx, r);
+      }),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await n.checkExactAlarms();
       await ref.read(actionsProvider).refreshSchedule();
@@ -62,14 +64,14 @@ class _MiBotiquinAppState extends ConsumerState<MiBotiquinApp> with WidgetsBindi
 
   @override
   Widget build(BuildContext context) => MaterialApp.router(
-        title: 'Mi Botiquín',
-        debugShowCheckedModeBanner: false,
-        theme: buildTheme(Brightness.light),
-        darkTheme: buildTheme(Brightness.dark),
-        themeMode: ThemeMode.system,
-        routerConfig: _router,
-        locale: const Locale('es', 'MX'),
-        supportedLocales: const [Locale('es', 'MX'), Locale('es')],
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      );
+    title: 'Mi Botiquín',
+    debugShowCheckedModeBanner: false,
+    theme: buildTheme(Brightness.light),
+    darkTheme: buildTheme(Brightness.dark),
+    themeMode: ThemeMode.system,
+    routerConfig: _router,
+    locale: const Locale('es', 'MX'),
+    supportedLocales: const [Locale('es', 'MX'), Locale('es')],
+    localizationsDelegates: GlobalMaterialLocalizations.delegates,
+  );
 }

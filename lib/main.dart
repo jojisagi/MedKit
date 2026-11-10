@@ -13,9 +13,19 @@ Future<void> main() async {
   Intl.defaultLocale = 'es_MX';
   await initializeDateFormatting('es_MX');
   final db = await openAppDatabase();
-  final launchDoseId = await NotificationService.instance.init();
-  runApp(ProviderScope(
-    overrides: [databaseProvider.overrideWithValue(db)],
-    child: MiBotiquinApp(launchDoseId: launchDoseId),
-  ));
+  int? launchDoseId;
+  try {
+    launchDoseId = await NotificationService.instance.init();
+  } catch (e, st) {
+    // Sin notificaciones la app sigue siendo útil: nunca bloquear el arranque.
+    FlutterError.reportError(
+      FlutterErrorDetails(exception: e, stack: st, context: ErrorDescription('al iniciar notificaciones')),
+    );
+  }
+  runApp(
+    ProviderScope(
+      overrides: [databaseProvider.overrideWithValue(db)],
+      child: MiBotiquinApp(launchDoseId: launchDoseId),
+    ),
+  );
 }

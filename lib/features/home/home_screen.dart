@@ -24,63 +24,89 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'scan-home',
-        onPressed: () => context.push('/confirm-scan'),
-        icon: const Icon(Icons.qr_code_scanner_rounded, size: 28),
-        label: const Text('Escanear para confirmar'),
-      ),
+      floatingActionButton: (profiles.value?.isEmpty ?? true)
+          ? null
+          : FloatingActionButton.extended(
+              heroTag: 'scan-home',
+              onPressed: () => context.push('/confirm-scan'),
+              icon: const Icon(Icons.qr_code_scanner_rounded, size: 28),
+              label: const Text('Escanear para confirmar'),
+            ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(actionsProvider).refreshSchedule(),
-        child: CustomScrollView(slivers: [
-          SliverSafeArea(
-            bottom: false,
-            sliver: SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 8, 0),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text('Hoy', style: context.text.displaySmall),
-                      const SizedBox(height: 2),
-                      Text(fmtDay(now), style: context.text.bodyLarge!.copyWith(color: context.sign.inkSoft)),
-                    ]),
+        child: CustomScrollView(
+          slivers: [
+            SliverSafeArea(
+              bottom: false,
+              sliver: SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 8, 0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Hoy', style: context.text.displaySmall),
+                            const SizedBox(height: 2),
+                            Text(fmtDay(now), style: context.text.bodyLarge!.copyWith(color: context.sign.inkSoft)),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: '¿Ya lo tengo?',
+                        onPressed: () => context.push('/already-have'),
+                        icon: const Icon(Icons.manage_search_rounded, size: 28),
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    tooltip: '¿Ya lo tengo?',
-                    onPressed: () => context.push('/already-have'),
-                    icon: const Icon(Icons.manage_search_rounded, size: 28),
-                  ),
-                ]),
+                ),
               ),
             ),
-          ),
-          ...switch ((doses, profiles)) {
-            (AsyncData(value: final list), AsyncData(value: final people)) =>
-              _content(context, ref, list, people, now),
-            (AsyncError(:final error), _) || (_, AsyncError(:final error)) => [
+            // Conserva los datos previos mientras se recarga (sin parpadeo de carga).
+            ...switch ((doses.value, profiles.value, doses.error ?? profiles.error)) {
+              (final List<DoseDetail> list, final List<Profile> people, _) => _content(context, ref, list, people, now),
+              (_, _, final Object error) => [
                 SliverToBoxAdapter(
                   child: EmptyState(
-                      icon: Icons.error_outline_rounded, title: 'No pudimos leer tus datos', body: '$error'),
+                    icon: Icons.error_outline_rounded,
+                    title: 'No pudimos leer tus datos',
+                    body: '$error',
+                  ),
                 ),
               ],
-            _ => [const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(48), child: Center(child: CircularProgressIndicator())))],
-          },
-          const SliverToBoxAdapter(child: SizedBox(height: 120)),
-        ]),
+              _ => [
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(48),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ),
+              ],
+            },
+            const SliverToBoxAdapter(child: SizedBox(height: 120)),
+          ],
+        ),
       ),
     );
   }
 
   List<Widget> _content(
-      BuildContext context, WidgetRef ref, List<DoseDetail> doses, List<Profile> people, DateTime now) {
+    BuildContext context,
+    WidgetRef ref,
+    List<DoseDetail> doses,
+    List<Profile> people,
+    DateTime now,
+  ) {
     if (people.isEmpty) {
       return [
         SliverToBoxAdapter(
           child: EmptyState(
             icon: Icons.signpost_outlined,
             title: 'Empieza por tu familia',
-            body: 'Agrega a cada persona que toma medicamentos. Cada una tendrá su color, '
+            body:
+                'Agrega a cada persona que toma medicamentos. Cada una tendrá su color, '
                 'y aquí verás su línea con las tomas del día.',
             actions: [
               FilledButton.icon(
@@ -88,10 +114,7 @@ class HomeScreen extends ConsumerWidget {
                 icon: const Icon(Icons.person_add_alt_1_rounded),
                 label: const Text('Agregar persona'),
               ),
-              OutlinedButton(
-                onPressed: () => context.go('/settings'),
-                child: const Text('Probar con datos demo'),
-              ),
+              OutlinedButton(onPressed: () => context.go('/settings'), child: const Text('Probar con datos demo')),
             ],
           ),
         ),
@@ -121,27 +144,27 @@ class HomeScreen extends ConsumerWidget {
       SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: Row(children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => context.push('/inventory/product'),
-                icon: const Icon(Icons.add_box_outlined),
-                label: const Text('Registrar caja'),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push('/inventory/product'),
+                  icon: const Icon(Icons.add_box_outlined),
+                  label: const Text('Registrar caja'),
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => context.push('/already-have'),
-                icon: const Icon(Icons.manage_search_rounded),
-                label: const Text('¿Ya lo tengo?'),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push('/already-have'),
+                  icon: const Icon(Icons.manage_search_rounded),
+                  label: const Text('¿Ya lo tengo?'),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
-      const SliverToBoxAdapter(child: PermissionNotices()),
-      const SliverToBoxAdapter(child: _AlertsBlock()),
       if (doses.isEmpty)
         SliverToBoxAdapter(
           child: EmptyState(
@@ -166,6 +189,7 @@ class HomeScreen extends ConsumerWidget {
               doses: byProfile[p.id]!,
               now: now,
               focusDoseId: focusByProfile[p.id],
+              plateDoseId: next?.dose.id,
               onOpen: (d) => showDoseSheet(context, ref, d),
               onScan: (d) => context.push('/confirm-scan?doseId=${d.dose.id}'),
               onManual: (d) => confirmManually(context, ref, d),
@@ -174,6 +198,8 @@ class HomeScreen extends ConsumerWidget {
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
         ],
       ],
+      const SliverToBoxAdapter(child: _AlertsBlock()),
+      const SliverToBoxAdapter(child: PermissionNotices()),
     ];
   }
 }
@@ -194,89 +220,142 @@ class _NextPlate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.sign;
     final soft = context.text.bodyLarge!.copyWith(color: t.onPlateSoft);
-    if (next == null) {
-      final taken = doses.where((d) => d.dose.isConfirmed).length;
+    final taken = doses.where((d) => d.dose.isConfirmed).length;
+    final missed = doses.where((d) => d.dose.status == DoseStatus.missed).length;
+    final daySummary = doses.isEmpty
+        ? 'Hoy no hubo tomas programadas.'
+        : 'Hoy: $taken de ${doses.length} tomadas${missed > 0 ? ' · $missed ${missed == 1 ? 'omitida' : 'omitidas'}' : ''}.';
+    // Si hoy ya no queda nada, la placa anuncia la próxima toma de otro día.
+    final upcoming = next ?? ref.watch(nextPendingProvider).value;
+    if (upcoming == null) {
+      final clean = missed == 0;
       return Plate(
-        child: Row(children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(color: Palette.ok, borderRadius: BorderRadius.circular(14)),
-            child: const Icon(Icons.done_all_rounded, color: Colors.white, size: 30),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(doses.isEmpty ? 'Nada pendiente hoy' : 'Todo al día',
-                  style: context.text.headlineSmall!.copyWith(color: t.onPlate)),
-              const SizedBox(height: 2),
-              Text(doses.isEmpty ? 'No hay tomas programadas.' : '$taken de ${doses.length} tomas registradas hoy.',
-                  style: numerals(soft)),
-            ]),
-          ),
-        ]),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: clean ? Palette.ok : Palette.caution,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(clean ? Icons.done_all_rounded : Icons.event_note_rounded, color: Colors.white, size: 30),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    doses.isEmpty ? 'Nada pendiente' : (clean ? 'Todo al día' : 'Día terminado'),
+                    style: context.text.headlineSmall!.copyWith(color: t.onPlate),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(daySummary, style: numerals(soft)),
+                ],
+              ),
+            ),
+          ],
+        ),
       );
     }
-    final d = next!;
+    final d = upcoming;
+    final otherDay = next == null;
     final zone = Color(d.profile.color);
     final confirmable = canConfirm(d.dose.scheduledAt, now, d.treatment.missAfterMin);
     final overdue = now.isAfter(d.dose.scheduledAt.add(Duration(minutes: d.treatment.toleranceMin)));
     return Plate(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(overdue ? 'Toma atrasada' : 'Siguiente toma',
-            style: context.text.titleMedium!.copyWith(color: overdue ? const Color(0xFFFFD873) : t.onPlate)),
-        const SizedBox(height: 10),
-        Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Text(fmtTime(d.dose.scheduledAt),
-              style: numerals(context.text.displayLarge!.copyWith(color: t.onPlate, height: 0.95))),
-          const SizedBox(width: 12),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(relative(d.dose.scheduledAt, now), style: numerals(soft)),
-          ),
-        ]),
-        const SizedBox(height: 14),
-        Text('${doseLabel(d.product, d.treatment.dose)} de ${productTitle(d.product)}',
-            style: context.text.titleLarge!.copyWith(color: t.onPlate)),
-        const SizedBox(height: 8),
-        Row(children: [
-          Container(width: 22, height: 8, decoration: BoxDecoration(color: zone, borderRadius: BorderRadius.circular(3))),
-          const SizedBox(width: 10),
-          Flexible(child: Text(d.profile.name, style: context.text.titleMedium!.copyWith(color: t.onPlate))),
-          if (d.treatment.notes?.isNotEmpty ?? false) ...[
-            Text('  ·  ', style: soft),
-            Flexible(child: Text(d.treatment.notes!, style: soft, overflow: TextOverflow.ellipsis)),
-          ],
-        ]),
-        const SizedBox(height: 18),
-        if (confirmable)
-          Row(children: [
-            Expanded(
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                    backgroundColor: Colors.white, foregroundColor: Palette.ink, minimumSize: const Size(48, 56)),
-                onPressed: () => context.push('/confirm-scan?doseId=${d.dose.id}'),
-                icon: const Icon(Icons.qr_code_scanner_rounded),
-                label: const Text('Escanear la caja'),
-              ),
-            ),
-            const SizedBox(width: 10),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: const BorderSide(color: Color(0x80FFFFFF), width: 1.5),
-                minimumSize: const Size(48, 56),
-              ),
-              onPressed: () => confirmManually(context, ref, d),
-              child: const Text('Ya la tomó'),
-            ),
-          ])
-        else
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Text(
+            overdue
+                ? 'Toma atrasada'
+                : (otherDay ? 'Siguiente toma · ${dayWord(d.dose.scheduledAt, now)}' : 'Siguiente toma'),
+            style: context.text.titleMedium!.copyWith(color: overdue ? const Color(0xFFFFD873) : t.onPlate),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                fmtTime(d.dose.scheduledAt),
+                style: numerals(context.text.displayLarge!.copyWith(color: t.onPlate, height: 0.95)),
+              ),
+              const SizedBox(width: 12),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(relative(d.dose.scheduledAt, now), style: numerals(soft)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            '${doseLabel(d.product, d.treatment.dose)} de ${productTitle(d.product)}',
+            style: context.text.titleLarge!.copyWith(color: t.onPlate),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Container(
+                width: 22,
+                height: 8,
+                decoration: BoxDecoration(color: zone, borderRadius: BorderRadius.circular(3)),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Text(d.profile.name, style: context.text.titleMedium!.copyWith(color: t.onPlate)),
+              ),
+              if (d.treatment.notes?.isNotEmpty ?? false) ...[
+                Text('  ·  ', style: soft),
+                Flexible(
+                  child: Text(d.treatment.notes!, style: soft, overflow: TextOverflow.ellipsis),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 18),
+          if (confirmable)
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Palette.ink,
+                      minimumSize: const Size(48, 56),
+                    ),
+                    onPressed: () => context.push('/confirm-scan?doseId=${d.dose.id}'),
+                    icon: const Icon(Icons.qr_code_scanner_rounded),
+                    label: const Text('Escanear la caja'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0x80FFFFFF), width: 1.5),
+                    minimumSize: const Size(48, 56),
+                  ),
+                  onPressed: () => confirmManually(context, ref, d),
+                  child: const Text('Ya la tomó'),
+                ),
+              ],
+            )
+          else
+            Text(
               'Podrás confirmarla desde las ${fmtTime(d.dose.scheduledAt.subtract(const Duration(minutes: earlyConfirmMin)))}.',
-              style: numerals(soft)),
-      ]),
+              style: numerals(soft),
+            ),
+          if (otherDay) ...[
+            const SizedBox(height: 14),
+            Divider(color: t.onPlateSoft.withValues(alpha: 0.25)),
+            const SizedBox(height: 10),
+            Text(daySummary, style: numerals(soft)),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -296,7 +375,8 @@ class _AlertsBlock extends ConsumerWidget {
           tone: isExpired(box, today) ? NoticeTone.danger : NoticeTone.caution,
           icon: isExpired(box, today) ? Icons.block_rounded : Icons.event_busy_rounded,
           title: '${productTitle(product)}: ${daysUntilLabel(box.expiresOn, today).toLowerCase()}',
-          body: '${fmtUnits(box.unitsLeft)} ${unitWord(product, box.unitsLeft)} en la caja · ${fmtDateShort(box.expiresOn)}',
+          body:
+              '${fmtUnits(box.unitsLeft)} ${unitWord(product, box.unitsLeft)} en la caja · ${fmtDateShort(box.expiresOn)}',
           onTap: () => context.push('/inventory/product/${product.id}'),
         ),
       for (final l in alerts.lowStock.take(3))
@@ -310,10 +390,13 @@ class _AlertsBlock extends ConsumerWidget {
           onTap: () => context.push('/inventory/product/${l.product.id}'),
         ),
     ];
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const SectionTitle('Avisos'),
-      for (final w in items) Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 8), child: w),
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SectionTitle('Avisos'),
+        for (final w in items) Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 8), child: w),
+      ],
+    );
   }
 }
 
@@ -329,60 +412,68 @@ Future<void> showDoseSheet(BuildContext context, WidgetRef ref, DoseDetail d) {
       return SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            ProfileTag(d.profile, large: true),
-            const SizedBox(height: 12),
-            Text(productTitle(d.product), style: context.text.headlineMedium),
-            const SizedBox(height: 4),
-            Text('${doseLabel(d.product, d.treatment.dose)} · ${fmtTime(d.dose.scheduledAt)}',
-                style: numerals(context.text.bodyLarge!)),
-            if (d.treatment.notes?.isNotEmpty ?? false) ...[
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ProfileTag(d.profile, large: true),
+              const SizedBox(height: 12),
+              Text(productTitle(d.product), style: context.text.headlineMedium),
               const SizedBox(height: 4),
-              Text(d.treatment.notes!, style: context.text.bodyMedium),
-            ],
-            const SizedBox(height: 12),
-            StatusLabel(d.dose.status,
+              Text(
+                '${doseLabel(d.product, d.treatment.dose)} · ${fmtTime(d.dose.scheduledAt)}',
+                style: numerals(context.text.bodyLarge!),
+              ),
+              if (d.treatment.notes?.isNotEmpty ?? false) ...[
+                const SizedBox(height: 4),
+                Text(d.treatment.notes!, style: context.text.bodyMedium),
+              ],
+              const SizedBox(height: 12),
+              StatusLabel(
+                d.dose.status,
                 suffix: d.dose.confirmedAt == null
                     ? null
-                    : '${fmtTime(d.dose.confirmedAt!)}${d.dose.method == ConfirmMethod.scan ? ' · escaneada' : ''}'),
-            const SizedBox(height: 20),
-            if (confirmable) ...[
+                    : '${fmtTime(d.dose.confirmedAt!)}${d.dose.method == ConfirmMethod.scan ? ' · escaneada' : ''}',
+              ),
+              const SizedBox(height: 20),
+              if (confirmable) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      Navigator.pop(sheet);
+                      context.push('/confirm-scan?doseId=${d.dose.id}');
+                    },
+                    icon: const Icon(Icons.qr_code_scanner_rounded),
+                    label: const Text('Confirmar escaneando'),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(sheet);
+                      confirmManually(context, ref, d);
+                    },
+                    child: const Text('Ya la tomó (sin escanear)'),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.icon(
+                child: TextButton.icon(
                   onPressed: () {
                     Navigator.pop(sheet);
-                    context.push('/confirm-scan?doseId=${d.dose.id}');
+                    context.push('/treatments/${d.treatment.id}');
                   },
-                  icon: const Icon(Icons.qr_code_scanner_rounded),
-                  label: const Text('Confirmar escaneando'),
+                  icon: const Icon(Icons.history_rounded),
+                  label: const Text('Ver historial del tratamiento'),
                 ),
               ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(sheet);
-                    confirmManually(context, ref, d);
-                  },
-                  child: const Text('Ya la tomó (sin escanear)'),
-                ),
-              ),
-              const SizedBox(height: 10),
             ],
-            SizedBox(
-              width: double.infinity,
-              child: TextButton.icon(
-                onPressed: () {
-                  Navigator.pop(sheet);
-                  context.push('/treatments/${d.treatment.id}');
-                },
-                icon: const Icon(Icons.history_rounded),
-                label: const Text('Ver historial del tratamiento'),
-              ),
-            ),
-          ]),
+          ),
         ),
       );
     },

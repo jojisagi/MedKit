@@ -20,13 +20,13 @@ const _formats = [
 ];
 
 BarcodeKind _kind(BarcodeFormat f) => switch (f) {
-      BarcodeFormat.ean13 => BarcodeKind.ean13,
-      BarcodeFormat.ean8 => BarcodeKind.ean8,
-      BarcodeFormat.upcA => BarcodeKind.upcA,
-      BarcodeFormat.upcE => BarcodeKind.upcE,
-      BarcodeFormat.dataMatrix => BarcodeKind.dataMatrix,
-      _ => BarcodeKind.unknown,
-    };
+  BarcodeFormat.ean13 => BarcodeKind.ean13,
+  BarcodeFormat.ean8 => BarcodeKind.ean8,
+  BarcodeFormat.upcA => BarcodeKind.upcA,
+  BarcodeFormat.upcE => BarcodeKind.upcE,
+  BarcodeFormat.dataMatrix => BarcodeKind.dataMatrix,
+  _ => BarcodeKind.unknown,
+};
 
 /// Convierte una lectura cruda en GTIN-14 validado (B1) o null.
 ScanResult? interpretRaw(String raw, BarcodeKind kind) {
@@ -41,10 +41,12 @@ ScanResult? interpretRaw(String raw, BarcodeKind kind) {
 
 /// Abre el escáner y devuelve el código leído o capturado a mano (null si se cancela).
 Future<ScanResult?> scanBarcode(BuildContext context, {String? title, String? subtitle}) =>
-    Navigator.of(context, rootNavigator: true).push<ScanResult>(MaterialPageRoute(
-      fullscreenDialog: true,
-      builder: (_) => ScannerScreen(title: title, subtitle: subtitle),
-    ));
+    Navigator.of(context, rootNavigator: true).push<ScanResult>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => ScannerScreen(title: title, subtitle: subtitle),
+      ),
+    );
 
 class ScannerScreen extends StatefulWidget {
   final String? title;
@@ -107,95 +109,116 @@ class _ScannerScreenState extends State<ScannerScreen> {
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: Stack(children: [
-          Positioned.fill(
-            child: MobileScanner(
-              controller: _controller,
-              onDetect: _onDetect,
-              errorBuilder: (context, error) => _CameraError(
-                denied: error.errorCode == MobileScannerErrorCode.permissionDenied,
-                onManual: _manual,
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: MobileScanner(
+                controller: _controller,
+                onDetect: _onDetect,
+                errorBuilder: (context, error) =>
+                    _CameraError(denied: error.errorCode == MobileScannerErrorCode.permissionDenied, onManual: _manual),
               ),
             ),
-          ),
-          Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: _WindowPainter(window)))),
-          // Encabezado tipo placa.
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                IconButton(
-                  tooltip: 'Cerrar',
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(widget.title ?? 'Escanea el código de la caja',
-                          style: context.text.headlineSmall!.copyWith(color: Colors.white)),
-                      if (widget.subtitle != null) ...[
-                        const SizedBox(height: 4),
-                        Text(widget.subtitle!, style: context.text.bodyLarge!.copyWith(color: Palette.onPlateSoft)),
-                      ],
-                    ]),
-                  ),
-                ),
-              ]),
+            Positioned.fill(
+              child: IgnorePointer(child: CustomPaint(painter: _WindowPainter(window))),
             ),
-          ),
-          Positioned(
-            left: 24,
-            right: 24,
-            top: window.bottom + 20,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: Text(
-                _hint ?? 'Centra el código de barras en el recuadro. Se lee solo.',
-                key: ValueKey(_hint),
-                textAlign: TextAlign.center,
-                style: context.text.bodyLarge!.copyWith(color: _hint == null ? Colors.white : const Color(0xFFFFD873)),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 0,
-            child: SafeArea(
-              top: false,
+            // Encabezado tipo placa.
+            SafeArea(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Row(children: [
-                  IconButton.filledTonal(
-                    tooltip: _torch ? 'Apagar linterna' : 'Encender linterna',
-                    style: IconButton.styleFrom(
-                        minimumSize: const Size(56, 56),
-                        backgroundColor: _torch ? Colors.white : const Color(0x33FFFFFF),
-                        foregroundColor: _torch ? Palette.ink : Colors.white),
-                    onPressed: () async {
-                      await _controller.toggleTorch();
-                      setState(() => _torch = !_torch);
-                    },
-                    icon: Icon(_torch ? Icons.flashlight_on_rounded : Icons.flashlight_off_rounded),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                          backgroundColor: Colors.white, foregroundColor: Palette.ink, minimumSize: const Size(48, 56)),
-                      onPressed: _manual,
-                      icon: const Icon(Icons.keyboard_rounded),
-                      label: const Text('Capturar a mano'),
+                padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    IconButton(
+                      tooltip: 'Cerrar',
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
                     ),
-                  ),
-                ]),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.title ?? 'Escanea el código de la caja',
+                              style: context.text.headlineSmall!.copyWith(color: Colors.white),
+                            ),
+                            if (widget.subtitle != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                widget.subtitle!,
+                                style: context.text.bodyLarge!.copyWith(color: Palette.onPlateSoft),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ]),
+            Positioned(
+              left: 24,
+              right: 24,
+              top: window.bottom + 20,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  _hint ?? 'Centra el código de barras en el recuadro. Se lee solo.',
+                  key: ValueKey(_hint),
+                  textAlign: TextAlign.center,
+                  style: context.text.bodyLarge!.copyWith(
+                    color: _hint == null ? Colors.white : const Color(0xFFFFD873),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 0,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Row(
+                    children: [
+                      IconButton.filledTonal(
+                        tooltip: _torch ? 'Apagar linterna' : 'Encender linterna',
+                        style: IconButton.styleFrom(
+                          minimumSize: const Size(56, 56),
+                          backgroundColor: _torch ? Colors.white : const Color(0x33FFFFFF),
+                          foregroundColor: _torch ? Palette.ink : Colors.white,
+                        ),
+                        onPressed: () async {
+                          await _controller.toggleTorch();
+                          setState(() => _torch = !_torch);
+                        },
+                        icon: Icon(_torch ? Icons.flashlight_on_rounded : Icons.flashlight_off_rounded),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton.icon(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Palette.ink,
+                            minimumSize: const Size(48, 56),
+                          ),
+                          onPressed: _manual,
+                          icon: const Icon(Icons.keyboard_rounded),
+                          label: const Text('Capturar a mano'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -229,12 +252,13 @@ class _WindowPainter extends CustomPainter {
     ]) {
       final c = o.translate(dx * 2, dy * 2);
       canvas.drawPath(
-          Path()
-            ..moveTo(c.dx, c.dy + dy * l)
-            ..lineTo(c.dx, c.dy + dy * 14)
-            ..quadraticBezierTo(c.dx, c.dy, c.dx + dx * 14, c.dy)
-            ..lineTo(c.dx + dx * l, c.dy),
-          p);
+        Path()
+          ..moveTo(c.dx, c.dy + dy * l)
+          ..lineTo(c.dx, c.dy + dy * 14)
+          ..quadraticBezierTo(c.dx, c.dy, c.dx + dx * 14, c.dy)
+          ..lineTo(c.dx + dx * l, c.dy),
+        p,
+      );
     }
   }
 
@@ -249,33 +273,39 @@ class _CameraError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ColoredBox(
-        color: Palette.ink,
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.no_photography_outlined, color: Colors.white, size: 48),
-              const SizedBox(height: 16),
-              Text(denied ? 'Sin acceso a la cámara' : 'La cámara no está disponible',
-                  style: context.text.headlineSmall!.copyWith(color: Colors.white), textAlign: TextAlign.center),
-              const SizedBox(height: 8),
-              Text(
-                denied
-                    ? 'Puedes permitirla en Ajustes de Android > Apps > Mi Botiquín > Permisos, o escribir el código a mano.'
-                    : 'Escribe el número que aparece debajo del código de barras.',
-                style: context.text.bodyLarge!.copyWith(color: Palette.onPlateSoft),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Palette.ink),
-                onPressed: onManual,
-                child: const Text('Capturar a mano'),
-              ),
-            ]),
-          ),
+    color: Palette.ink,
+    child: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.no_photography_outlined, color: Colors.white, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              denied ? 'Sin acceso a la cámara' : 'La cámara no está disponible',
+              style: context.text.headlineSmall!.copyWith(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              denied
+                  ? 'Puedes permitirla en Ajustes de Android > Apps > Mi Botiquín > Permisos, o escribir el código a mano.'
+                  : 'Escribe el número que aparece debajo del código de barras.',
+              style: context.text.bodyLarge!.copyWith(color: Palette.onPlateSoft),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Palette.ink),
+              onPressed: onManual,
+              child: const Text('Capturar a mano'),
+            ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 /// B5: captura manual del número impreso bajo el código.
@@ -310,23 +340,27 @@ class _ManualCodeDialogState extends State<ManualCodeDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text('Escribe el código'),
-        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Son los 8, 12 o 13 números que aparecen debajo de las barras.', style: context.text.bodyMedium),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _c,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')), LengthLimitingTextInputFormatter(17)],
-            style: numerals(context.text.headlineSmall!),
-            decoration: InputDecoration(hintText: '7501234567893', errorText: _error),
-            onSubmitted: (_) => _submit(),
-          ),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          FilledButton(onPressed: _submit, child: const Text('Usar código')),
-        ],
-      );
+    title: const Text('Escribe el código'),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Son los 8, 12 o 13 números que aparecen debajo de las barras.', style: context.text.bodyMedium),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _c,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')), LengthLimitingTextInputFormatter(17)],
+          style: numerals(context.text.headlineSmall!),
+          decoration: InputDecoration(hintText: '7501234567893', errorText: _error),
+          onSubmitted: (_) => _submit(),
+        ),
+      ],
+    ),
+    actions: [
+      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+      FilledButton(onPressed: _submit, child: const Text('Usar código')),
+    ],
+  );
 }

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El ícono de notificación se pide por nombre desde Dart: el shrinker no ve la referencia. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_pill,@drawable/ic_launcher_foreground" />

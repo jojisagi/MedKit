@@ -47,27 +47,29 @@ class ProfilesScreen extends ConsumerWidget {
         icon: const Icon(Icons.person_add_alt_1_rounded),
         label: const Text('Agregar persona'),
       ),
-      body: CustomScrollView(slivers: [
-        SliverSafeArea(
-          bottom: false,
-          sliver: SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: Text('Familia', style: context.text.displaySmall),
+      body: CustomScrollView(
+        slivers: [
+          SliverSafeArea(
+            bottom: false,
+            sliver: SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Text('Familia', style: context.text.displaySmall),
+              ),
             ),
           ),
-        ),
-        ...switch (data) {
-          AsyncData(:final value) when value.isEmpty => [
+          ...switch (data.hasValue ? AsyncData(data.requireValue) : data) {
+            AsyncData(:final value) when value.isEmpty => [
               const SliverToBoxAdapter(
                 child: EmptyState(
                   icon: Icons.people_outline_rounded,
                   title: 'Nadie registrado todavía',
-                  body: 'Cada persona tiene su color: lo verás en su línea de tomas, en sus cajas y en las notificaciones.',
+                  body:
+                      'Cada persona tiene su color: lo verás en su línea de tomas, en sus cajas y en las notificaciones.',
                 ),
               ),
             ],
-          AsyncData(:final value) => [
+            AsyncData(:final value) => [
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
                 sliver: SliverList.separated(
@@ -78,37 +80,53 @@ class ProfilesScreen extends ConsumerWidget {
                     return Panel(
                       padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
                       onTap: () => context.push('/profiles/${s.profile.id}'),
-                      child: Row(children: [
-                        ProfileAvatar(s.profile, size: 52),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Text(s.profile.name, style: context.text.titleLarge),
-                            const SizedBox(height: 2),
-                            Text(
-                              s.activeTreatments == 0
-                                  ? 'Sin tratamientos activos'
-                                  : '${s.activeTreatments} ${s.activeTreatments == 1 ? 'tratamiento activo' : 'tratamientos activos'}',
-                              style: context.text.bodyMedium,
+                      child: Row(
+                        children: [
+                          ProfileAvatar(s.profile, size: 52),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(s.profile.name, style: context.text.titleLarge),
+                                const SizedBox(height: 2),
+                                Text(
+                                  s.activeTreatments == 0
+                                      ? 'Sin tratamientos activos'
+                                      : '${s.activeTreatments} ${s.activeTreatments == 1 ? 'tratamiento activo' : 'tratamientos activos'}',
+                                  style: context.text.bodyMedium,
+                                ),
+                              ],
                             ),
-                          ]),
-                        ),
-                        if (s.compliance != null)
-                          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                            Text(pct(s.compliance!), style: numerals(context.text.titleLarge!)),
-                            Text('cumplimiento', style: context.text.bodySmall),
-                          ]),
-                        const SizedBox(width: 4),
-                        Icon(Icons.chevron_right_rounded, color: context.sign.inkFaint),
-                      ]),
+                          ),
+                          if (s.compliance != null)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(pct(s.compliance!), style: numerals(context.text.titleLarge!)),
+                                Text('cumplimiento', style: context.text.bodySmall),
+                              ],
+                            ),
+                          const SizedBox(width: 4),
+                          Icon(Icons.chevron_right_rounded, color: context.sign.inkFaint),
+                        ],
+                      ),
                     );
                   },
                 ),
               ),
             ],
-          _ => [const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(48), child: Center(child: CircularProgressIndicator())))],
-        },
-      ]),
+            _ => [
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(48),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+            ],
+          },
+        ],
+      ),
     );
   }
 }

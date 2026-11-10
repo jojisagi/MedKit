@@ -15,6 +15,16 @@ String fmtDay(DateTime d) {
   return s[0].toUpperCase() + s.substring(1);
 }
 
+/// "hoy", "mañana" o el día de la semana.
+String dayWord(DateTime d, DateTime now) {
+  final a = DateTime(d.year, d.month, d.day);
+  final b = DateTime(now.year, now.month, now.day);
+  final diff = a.difference(b).inDays;
+  if (diff == 0) return 'hoy';
+  if (diff == 1) return 'mañana';
+  return DateFormat('EEEE', 'es_MX').format(d);
+}
+
 String fmtUnits(double v) {
   if (v == v.roundToDouble()) return v.toInt().toString();
   return v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '');
@@ -50,9 +60,11 @@ String relative(DateTime target, DateTime now) {
 }
 
 String daysUntilLabel(DateTime expires, DateTime today) {
-  final d = DateTime(expires.year, expires.month, expires.day)
-      .difference(DateTime(today.year, today.month, today.day))
-      .inDays;
+  final d = DateTime(
+    expires.year,
+    expires.month,
+    expires.day,
+  ).difference(DateTime(today.year, today.month, today.day)).inDays;
   if (d < 0) return 'Caducó hace ${-d} ${-d == 1 ? 'día' : 'días'}';
   if (d == 0) return 'Caduca hoy';
   if (d == 1) return 'Caduca mañana';
@@ -87,12 +99,17 @@ class StatusLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = statusStyle(context, status);
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(s.icon, size: 18, color: s.color),
-      const SizedBox(width: 4),
-      Text(suffix == null ? s.label : '${s.label} · $suffix',
-          style: numerals(context.text.labelMedium!.copyWith(color: s.color))),
-    ]);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(s.icon, size: 18, color: s.color),
+        const SizedBox(width: 4),
+        Text(
+          suffix == null ? s.label : '${s.label} · $suffix',
+          style: numerals(context.text.labelMedium!.copyWith(color: s.color)),
+        ),
+      ],
+    );
   }
 }
 
@@ -107,19 +124,24 @@ class ProfileTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = zoneOn(context, Color(profile.color));
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-        width: large ? 22 : 14,
-        height: large ? 8 : 6,
-        decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(3)),
-      ),
-      SizedBox(width: large ? 10 : 8),
-      Flexible(
-        child: Text(profile.name,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: large ? 22 : 14,
+          height: large ? 8 : 6,
+          decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(3)),
+        ),
+        SizedBox(width: large ? 10 : 8),
+        Flexible(
+          child: Text(
+            profile.name,
             overflow: TextOverflow.ellipsis,
-            style: (large ? context.text.titleLarge : context.text.labelLarge)!.copyWith(color: c)),
-      ),
-    ]);
+            style: (large ? context.text.titleLarge : context.text.labelLarge)!.copyWith(color: c),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -137,13 +159,16 @@ class ProfileAvatar extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(size * 0.3)),
-      child: Text(initial,
-          style: TextStyle(
-              fontFamily: 'Atkinson',
-              fontSize: size * 0.46,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              fontVariations: const [FontVariation('wght', 700)])),
+      child: Text(
+        initial,
+        style: TextStyle(
+          fontFamily: 'Atkinson',
+          fontSize: size * 0.46,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+          fontVariations: const [FontVariation('wght', 700)],
+        ),
+      ),
     );
   }
 }
@@ -159,15 +184,18 @@ class Plate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: padding,
-        decoration: BoxDecoration(
-          color: context.sign.plate,
-          borderRadius: radius ?? BorderRadius.circular(20),
-          boxShadow: const [BoxShadow(color: Color(0x2914213D), blurRadius: 18, offset: Offset(0, 6))],
-        ),
-        child: DefaultTextStyle.merge(style: TextStyle(color: context.sign.onPlate), child: child),
-      );
+    width: double.infinity,
+    padding: padding,
+    decoration: BoxDecoration(
+      color: context.sign.plate,
+      borderRadius: radius ?? BorderRadius.circular(20),
+      boxShadow: const [BoxShadow(color: Color(0x2914213D), blurRadius: 18, offset: Offset(0, 6))],
+    ),
+    child: DefaultTextStyle.merge(
+      style: TextStyle(color: context.sign.onPlate),
+      child: child,
+    ),
+  );
 }
 
 /// Panel blanco sobre el muro: agrupa sin anidar tarjetas.
@@ -179,21 +207,21 @@ class Panel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: context.sign.panel,
-        borderRadius: BorderRadius.circular(16),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Container(
-            padding: padding,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: context.sign.rule),
-            ),
-            child: child,
-          ),
+    color: context.sign.panel,
+    borderRadius: BorderRadius.circular(16),
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: context.sign.rule),
         ),
-      );
+        child: child,
+      ),
+    ),
+  );
 }
 
 class SectionTitle extends StatelessWidget {
@@ -204,12 +232,14 @@ class SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: padding,
-        child: Row(children: [
-          Expanded(child: Text(title, style: context.text.titleLarge)),
-          if (trailing != null) trailing!,
-        ]),
-      );
+    padding: padding,
+    child: Row(
+      children: [
+        Expanded(child: Text(title, style: context.text.titleLarge)),
+        if (trailing != null) trailing!,
+      ],
+    ),
+  );
 }
 
 enum NoticeTone { info, caution, danger }
@@ -248,21 +278,27 @@ class Notice extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(icon, color: fg, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: context.text.titleSmall!.copyWith(color: tone == NoticeTone.info ? t.ink : fg)),
-                if (body != null) ...[
-                  const SizedBox(height: 2),
-                  Text(body!, style: context.text.bodySmall!.copyWith(color: t.ink.withValues(alpha: 0.78))),
-                ],
-                if (action != null) ...[const SizedBox(height: 8), action!],
-              ]),
-            ),
-            if (onTap != null && action == null) Icon(Icons.chevron_right_rounded, color: fg),
-          ]),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: fg, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: context.text.titleSmall!.copyWith(color: tone == NoticeTone.info ? t.ink : fg)),
+                    if (body != null) ...[
+                      const SizedBox(height: 2),
+                      Text(body!, style: context.text.bodySmall!.copyWith(color: t.ink.withValues(alpha: 0.78))),
+                    ],
+                    if (action != null) ...[const SizedBox(height: 8), action!],
+                  ],
+                ),
+              ),
+              if (onTap != null && action == null) Icon(Icons.chevron_right_rounded, color: fg),
+            ],
+          ),
         ),
       ),
     );
@@ -279,24 +315,25 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(28, 32, 28, 32),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(color: context.sign.plate, borderRadius: BorderRadius.circular(16)),
-            child: Icon(icon, color: context.sign.onPlate, size: 34),
-          ),
-          const SizedBox(height: 20),
-          Text(title, style: context.text.headlineSmall),
-          const SizedBox(height: 8),
-          Text(body, style: context.text.bodyLarge!.copyWith(color: context.sign.inkSoft)),
-          if (actions.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            Wrap(spacing: 12, runSpacing: 12, children: actions),
-          ],
-        ]),
-      );
+    padding: const EdgeInsets.fromLTRB(28, 32, 28, 32),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(color: context.sign.plate, borderRadius: BorderRadius.circular(16)),
+          child: Icon(icon, color: context.sign.onPlate, size: 34),
+        ),
+        const SizedBox(height: 20),
+        Text(title, style: context.text.headlineSmall),
+        const SizedBox(height: 8),
+        Text(body, style: context.text.bodyLarge!.copyWith(color: context.sign.inkSoft)),
+        if (actions.isNotEmpty) ...[const SizedBox(height: 20), Wrap(spacing: 12, runSpacing: 12, children: actions)],
+      ],
+    ),
+  );
 }
 
 /// Fila "etiqueta / valor" con cifras tabulares.
@@ -308,12 +345,14 @@ class FactRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(children: [
-          Expanded(child: Text(label, style: context.text.bodyMedium)),
-          Text(value, style: numerals(context.text.titleSmall!.copyWith(color: valueColor))),
-        ]),
-      );
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: Row(
+      children: [
+        Expanded(child: Text(label, style: context.text.bodyMedium)),
+        Text(value, style: numerals(context.text.titleSmall!.copyWith(color: valueColor))),
+      ],
+    ),
+  );
 }
 
 void showMessage(BuildContext context, String text, {SnackBarAction? action}) {

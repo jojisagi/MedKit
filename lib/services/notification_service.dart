@@ -11,6 +11,7 @@ import '../data/db.dart';
 import '../data/dose_repository.dart';
 import '../domain/dose_rules.dart';
 import '../domain/models.dart';
+import '../ui/widgets.dart' show doseLabel, productTitle;
 import 'dose_confirmation_service.dart';
 
 const _channelDoses = AndroidNotificationChannel(
@@ -41,10 +42,13 @@ void onBackgroundAction(NotificationResponse r) async {
   DartPluginRegistrant.ensureInitialized();
   final db = await openAppDatabase();
   final plugin = FlutterLocalNotificationsPlugin();
-  await DoseConfirmationService(db, onConfirmed: (doseId) async {
-    await plugin.cancel(id: notificationId(doseId));
-    await plugin.cancel(id: notificationId(doseId, retry: true));
-  }).confirm(id, ConfirmMethod.notification);
+  await DoseConfirmationService(
+    db,
+    onConfirmed: (doseId) async {
+      await plugin.cancel(id: notificationId(doseId));
+      await plugin.cancel(id: notificationId(doseId, retry: true));
+    },
+  ).confirm(id, ConfirmMethod.notification);
 }
 
 class NotificationService {
@@ -116,22 +120,22 @@ class NotificationService {
 
   Future<bool> notificationsEnabled() async => await _android?.areNotificationsEnabled() ?? true;
 
-  NotificationDetails _doseDetails(Profile profile) => NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channelDoses.id,
-          _channelDoses.name,
-          channelDescription: _channelDoses.description,
-          importance: Importance.max,
-          priority: Priority.high,
-          category: AndroidNotificationCategory.reminder,
-          color: Color(profile.color),
-          colorized: false,
-          ticker: 'Toma de ${profile.name}',
-          actions: const [
-            AndroidNotificationAction(actionConfirm, 'Ya la tomé', cancelNotification: true),
-          ],
-        ),
-      );
+  /// [timeoutMin]: la principal se retira sola cuando llega el reintento (no se duplican).
+  NotificationDetails _doseDetails(Profile profile, {int? timeoutMin}) => NotificationDetails(
+    android: AndroidNotificationDetails(
+      _channelDoses.id,
+      _channelDoses.name,
+      channelDescription: _channelDoses.description,
+      timeoutAfter: timeoutMin == null ? null : timeoutMin * 60000,
+      importance: Importance.max,
+      priority: Priority.high,
+      category: AndroidNotificationCategory.reminder,
+      color: Color(profile.color),
+      colorized: false,
+      ticker: 'Toma de ${profile.name}',
+      actions: const [AndroidNotificationAction(actionConfirm, 'Ya la tomé', cancelNotification: true)],
+    ),
+  );
 
   /// R2: principal a la hora exacta + reintento a +tolerancia. Ignora horas pasadas.
   Future<void> scheduleDose(DoseDetail d, {DateTime? now}) async {
@@ -139,8 +143,7 @@ class NotificationService {
     final at = now ?? DateTime.now();
     final p = d.product;
     final title = 'Toma de ${d.profile.name}';
-    final body = '${formatUnits(d.treatment.dose)} ${p.unitLabel} de ${p.name}'
-        '${p.strength == null ? '' : ' ${p.strength}'} · Escanea la caja para confirmar';
+    final body = '${doseLabel(p, d.treatment.dose)} de ${productTitle(p)} · Escanea la caja para confirmar';
     final mode = exactAllowed ? AndroidScheduleMode.exactAllowWhileIdle : AndroidScheduleMode.inexactAllowWhileIdle;
     final main = d.dose.scheduledAt;
     final retry = main.add(Duration(minutes: d.treatment.toleranceMin));
@@ -148,7 +151,7 @@ class NotificationService {
       await _plugin.zonedSchedule(
         id: notificationId(d.dose.id!),
         scheduledDate: tz.TZDateTime.from(main, tz.local),
-        notificationDetails: _doseDetails(d.profile),
+        notificationDetails: _doseDetails(d.profile, timeoutMin: d.treatment.toleranceMin),
         androidScheduleMode: mode,
         title: title,
         body: body,
@@ -186,8 +189,12 @@ class NotificationService {
       id: _dailyAlertId,
       scheduledDate: next,
       notificationDetails: NotificationDetails(
-        android: AndroidNotificationDetails(_channelAlerts.id, _channelAlerts.name,
-            channelDescription: _channelAlerts.description, styleInformation: BigTextStyleInformation(summary)),
+        android: AndroidNotificationDetails(
+          _channelAlerts.id,
+          _channelAlerts.name,
+          channelDescription: _channelAlerts.description,
+          styleInformation: BigTextStyleInformation(summary),
+        ),
       ),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,

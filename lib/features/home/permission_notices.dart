@@ -21,39 +21,42 @@ class PermissionNotices extends ConsumerWidget {
     final n = ref.read(notificationsProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      child: Column(children: [
-        if (!s.notif)
-          Notice(
-            tone: NoticeTone.caution,
-            icon: Icons.notifications_off_outlined,
-            title: 'Activa los recordatorios',
-            body: 'Sin permiso de notificaciones no podemos avisarte a la hora de cada toma.',
-            action: FilledButton(
-              onPressed: () async {
-                await n.requestNotificationPermission();
-                ref.invalidate(_permState);
-              },
-              child: const Text('Permitir notificaciones'),
+      child: Column(
+        children: [
+          if (!s.notif)
+            Notice(
+              tone: NoticeTone.caution,
+              icon: Icons.notifications_off_outlined,
+              title: 'Activa los recordatorios',
+              body: 'Sin permiso de notificaciones no podemos avisarte a la hora de cada toma.',
+              action: FilledButton(
+                onPressed: () async {
+                  await n.requestNotificationPermission();
+                  ref.invalidate(_permState);
+                },
+                child: const Text('Permitir notificaciones'),
+              ),
             ),
-          ),
-        if (!s.notif && !s.exact) const SizedBox(height: 8),
-        if (!s.exact)
-          Notice(
-            tone: NoticeTone.caution,
-            icon: Icons.alarm_off_rounded,
-            title: 'Avisos a la hora exacta',
-            body: 'Android puede retrasar los avisos varios minutos. Permite «Alarmas y recordatorios» '
-                'para que lleguen puntuales.',
-            action: OutlinedButton(
-              onPressed: () async {
-                await n.requestExactAlarms();
-                ref.invalidate(_permState);
-                await ref.read(actionsProvider).rescheduleAll();
-              },
-              child: const Text('Abrir ajustes de Android'),
+          if (!s.notif && !s.exact) const SizedBox(height: 8),
+          if (!s.exact)
+            Notice(
+              tone: NoticeTone.caution,
+              icon: Icons.alarm_off_rounded,
+              title: 'Avisos a la hora exacta',
+              body:
+                  'Android puede retrasar los avisos varios minutos. Permite «Alarmas y recordatorios» '
+                  'para que lleguen puntuales.',
+              action: OutlinedButton(
+                onPressed: () async {
+                  await n.requestExactAlarms();
+                  ref.invalidate(_permState);
+                  await ref.read(actionsProvider).rescheduleAll();
+                },
+                child: const Text('Abrir ajustes de Android'),
+              ),
             ),
-          ),
-      ]),
+        ],
+      ),
     );
   }
 }

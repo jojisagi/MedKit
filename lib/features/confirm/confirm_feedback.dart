@@ -6,11 +6,11 @@ import '../../services/dose_confirmation_service.dart';
 import '../../ui/widgets.dart';
 
 String statusWord(DoseStatus s) => switch (s) {
-      DoseStatus.onTime => 'a tiempo',
-      DoseStatus.late => 'tardía',
-      DoseStatus.missed => 'omitida',
-      DoseStatus.pending => 'pendiente',
-    };
+  DoseStatus.onTime => 'a tiempo',
+  DoseStatus.late => 'tardía',
+  DoseStatus.missed => 'omitida',
+  DoseStatus.pending => 'pendiente',
+};
 
 /// Mensaje tras confirmar: "Toma de Rosa registrada (a tiempo)" + aviso de inventario (R4).
 void showConfirmResult(BuildContext context, ConfirmResult r, {String? profileName}) {
@@ -19,9 +19,12 @@ void showConfirmResult(BuildContext context, ConfirmResult r, {String? profileNa
     return;
   }
   if (r.outOfWindow) {
-    showMessage(context, r.status == DoseStatus.missed
-        ? 'Esta toma ya se marcó como omitida.'
-        : 'Aún es temprano: puedes confirmar desde 30 min antes.');
+    showMessage(
+      context,
+      r.status == DoseStatus.missed
+          ? 'Esta toma ya se marcó como omitida.'
+          : 'Aún es temprano: puedes confirmar desde 30 min antes.',
+    );
     return;
   }
   HapticFeedback.mediumImpact();

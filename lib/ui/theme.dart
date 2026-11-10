@@ -40,36 +40,36 @@ abstract final class Palette {
 
 /// Peso real del eje variable (Flutter no siempre lo deriva de FontWeight).
 TextStyle _w(double size, double weight, {double height = 1.3, double spacing = 0, Color? color}) => TextStyle(
-      fontFamily: 'Atkinson',
-      fontSize: size,
-      height: height,
-      letterSpacing: spacing,
-      color: color,
-      fontWeight: FontWeight.values[((weight / 100).round() - 1).clamp(0, 8)],
-      fontVariations: [FontVariation.weight(weight)],
-    );
+  fontFamily: 'Atkinson',
+  fontSize: size,
+  height: height,
+  letterSpacing: spacing,
+  color: color,
+  fontWeight: FontWeight.values[((weight / 100).round() - 1).clamp(0, 8)],
+  fontVariations: [FontVariation.weight(weight)],
+);
 
 const tabular = [FontFeature.tabularFigures()];
 
 TextStyle numerals(TextStyle s) => s.copyWith(fontFeatures: tabular);
 
 TextTheme _textTheme(Color ink, Color soft) => TextTheme(
-      displayLarge: _w(56, 700, height: 1.0, spacing: -1.2, color: ink),
-      displayMedium: _w(44, 700, height: 1.05, spacing: -0.8, color: ink),
-      displaySmall: _w(34, 700, height: 1.1, spacing: -0.4, color: ink),
-      headlineLarge: _w(30, 700, height: 1.15, spacing: -0.3, color: ink),
-      headlineMedium: _w(26, 700, height: 1.2, spacing: -0.2, color: ink),
-      headlineSmall: _w(22, 700, height: 1.25, color: ink),
-      titleLarge: _w(20, 700, height: 1.25, color: ink),
-      titleMedium: _w(17, 650, height: 1.3, color: ink),
-      titleSmall: _w(15, 650, height: 1.3, color: ink),
-      bodyLarge: _w(17, 400, height: 1.45, color: ink),
-      bodyMedium: _w(16, 400, height: 1.45, color: soft),
-      bodySmall: _w(14, 400, height: 1.4, color: soft),
-      labelLarge: _w(16, 650, height: 1.2, spacing: 0.1, color: ink),
-      labelMedium: _w(14, 600, height: 1.2, spacing: 0.2, color: soft),
-      labelSmall: _w(12.5, 600, height: 1.2, spacing: 0.4, color: soft),
-    );
+  displayLarge: _w(56, 700, height: 1.0, spacing: -1.2, color: ink),
+  displayMedium: _w(44, 700, height: 1.05, spacing: -0.8, color: ink),
+  displaySmall: _w(34, 700, height: 1.1, spacing: -0.4, color: ink),
+  headlineLarge: _w(30, 700, height: 1.15, spacing: -0.3, color: ink),
+  headlineMedium: _w(26, 700, height: 1.2, spacing: -0.2, color: ink),
+  headlineSmall: _w(22, 700, height: 1.25, color: ink),
+  titleLarge: _w(20, 700, height: 1.25, color: ink),
+  titleMedium: _w(17, 650, height: 1.3, color: ink),
+  titleSmall: _w(15, 650, height: 1.3, color: ink),
+  bodyLarge: _w(17, 400, height: 1.45, color: ink),
+  bodyMedium: _w(16, 400, height: 1.45, color: soft),
+  bodySmall: _w(14, 400, height: 1.4, color: soft),
+  labelLarge: _w(16, 650, height: 1.2, spacing: 0.1, color: ink),
+  labelMedium: _w(14, 600, height: 1.2, spacing: 0.2, color: soft),
+  labelSmall: _w(12.5, 600, height: 1.2, spacing: 0.4, color: soft),
+);
 
 /// Tokens que Material no modela.
 @immutable
@@ -140,8 +140,7 @@ extension SignContext on BuildContext {
 }
 
 /// En oscuro, los colores de zona se aclaran para mantener contraste.
-Color zoneOn(BuildContext context, Color zone) =>
-    context.isDark ? Color.lerp(zone, Colors.white, 0.35)! : zone;
+Color zoneOn(BuildContext context, Color zone) => context.isDark ? Color.lerp(zone, Colors.white, 0.35)! : zone;
 
 ThemeData buildTheme(Brightness brightness) {
   final dark = brightness == Brightness.dark;
@@ -208,10 +207,16 @@ ThemeData buildTheme(Brightness brightness) {
       indicatorColor: dark ? const Color(0xFF2A3D6B) : const Color(0xFFDCE3F2),
       height: 72,
       elevation: 0,
-      labelTextStyle: WidgetStateProperty.resolveWith((s) => _w(13, s.contains(WidgetState.selected) ? 700 : 550,
-          color: s.contains(WidgetState.selected) ? t.ink : t.inkSoft)),
+      labelTextStyle: WidgetStateProperty.resolveWith(
+        (s) => _w(
+          13,
+          s.contains(WidgetState.selected) ? 700 : 550,
+          color: s.contains(WidgetState.selected) ? t.ink : t.inkSoft,
+        ),
+      ),
       iconTheme: WidgetStateProperty.resolveWith(
-          (s) => IconThemeData(size: 26, color: s.contains(WidgetState.selected) ? t.ink : t.inkSoft)),
+        (s) => IconThemeData(size: 26, color: s.contains(WidgetState.selected) ? t.ink : t.inkSoft),
+      ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -251,13 +256,22 @@ ThemeData buildTheme(Brightness brightness) {
       floatingLabelStyle: _w(15, 650, color: t.ink),
       helperStyle: _w(13.5, 400, color: t.inkSoft),
       errorStyle: _w(13.5, 600, color: t.danger),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: t.rule)),
-      enabledBorder:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: t.rule, width: 1.25)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: t.rule),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: t.rule, width: 1.25),
+      ),
       focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: scheme.primary, width: 2)),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: scheme.primary, width: 2),
+      ),
       errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: t.danger, width: 1.5)),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: t.danger, width: 1.5),
+      ),
     ),
     chipTheme: ChipThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -314,8 +328,8 @@ ThemeData buildTheme(Brightness brightness) {
       selectionHandleColor: scheme.primary,
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(color: scheme.primary),
-    pageTransitionsTheme: const PageTransitionsTheme(builders: {
-      TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-    }),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {TargetPlatform.android: PredictiveBackPageTransitionsBuilder()},
+    ),
   );
 }
