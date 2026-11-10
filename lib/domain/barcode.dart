@@ -138,3 +138,12 @@ Gs1Data? parseGs1(String raw) {
   if (gtin == null) return null;
   return Gs1Data(gtin: gtin, expiresOn: expires, lot: lot);
 }
+
+/// Agrega el dígito verificador a un cuerpo de 7, 11, 12 o 13 dígitos.
+String gtinWithCheckDigit(String body) {
+  var sum = 0;
+  for (var i = body.length - 1, w = 3; i >= 0; i--, w = w == 3 ? 1 : 3) {
+    sum += (body.codeUnitAt(i) - 48) * w;
+  }
+  return '$body${(10 - sum % 10) % 10}';
+}
