@@ -1,0 +1,81 @@
+MI BOTIQUÍN — CÓMO SIMULARLA EN LA MAC
+=====================================
+
+La app es solo para Android (SPEC §1), por eso NO se instala en iPhone.
+Se prueba en la Mac con el emulador Android de Android Studio.
+
+
+REQUISITOS (una sola vez)
+-------------------------
+1. Android Studio instalado, con un emulador creado (aquí: "Pixel_8").
+   Para ver los que tienes:
+       ~/Library/Android/sdk/emulator/emulator -list-avds
+2. Flutter 3.35 o más reciente.
+3. JDK 21 (Gradle no funciona con Java 25):
+       brew install openjdk@21
+
+
+OPCIÓN A — UN SOLO COMANDO (recomendada)
+----------------------------------------
+Abre Terminal y pega:
+
+    cd "/Users/jorgesanchezgiron/Desktop/Noveno semestre/Apps móviles/Tercer Parcial/Medkit/mi-botiquin" && ./run.sh
+
+El script abre el emulador, instala el APK ya compilado, concede permisos
+(notificaciones, cámara y alarmas exactas) y abre la app.
+
+  - Si cambiaste código y quieres recompilar:   ./run.sh --build
+  - Si tu emulador tiene otro nombre:           AVD=NombreDelEmulador ./run.sh
+
+
+OPCIÓN B — PASO A PASO
+----------------------
+1. Abrir el emulador:
+       ~/Library/Android/sdk/emulator/emulator -avd Pixel_8 &
+2. Esperar a que aparezca la pantalla de inicio de Android.
+3. Instalar el APK:
+       ~/Library/Android/sdk/platform-tools/adb install -r build/app/outputs/flutter-apk/app-release.apk
+4. Abrir "Mi Botiquín" en el emulador (ícono azul marino con cruz blanca).
+
+O con Flutter, para desarrollo con recarga en caliente:
+       flutter config --jdk-dir=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+       flutter run
+
+
+GUION DE DEMO (unos 5 minutos)
+------------------------------
+1. Inicio → "Probar con datos demo" → toca la tarjeta "Cargar datos de prueba".
+   Se crean Rosa y Don Luis, 3 medicamentos y una toma de Rosa en 2 minutos.
+2. Inicio: la placa azul muestra la siguiente toma; abajo, la línea de color
+   de cada persona con sus tomas del día.
+3. Espera 2 minutos: llega la notificación "Toma de Rosa" con el botón "Ya la tomé".
+   (Para verla: desliza hacia abajo desde arriba de la pantalla del emulador.)
+4. Confirmar ESCANEANDO (la cámara del emulador no lee códigos reales, así que se
+   captura a mano):
+     a. Toca "Escanear la caja" en la placa → "Capturar a mano".
+     b. Prueba la caja EQUIVOCADA: escribe 2000000000022 (Loratadina) → "Usar código".
+        Aparece la advertencia roja "Caja equivocada" y la toma NO se registra.
+     c. "Escanear de nuevo" → "Capturar a mano" → 2000000000015 (Ibuprofeno).
+        "Toma de Rosa registrada (a tiempo)" y el inventario baja 1 tableta.
+5. Botiquín → Ibuprofeno: ahora quedan 13 tabletas (persistente al cerrar la app).
+6. Familia → Don Luis → Loratadina: historial y % de cumplimiento.
+7. Inicio → "Avisos": Loratadina caduca en 10 días (alerta de caducidad).
+8. Si esperas más de 3 min sin confirmar una toma demo, pasa a "Omitida" (roja).
+
+Códigos de las cajas demo (prefijo 200 = uso interno, no son productos reales):
+    Ibuprofeno 400 mg ........ 2000000000015
+    Loratadina 10 mg ......... 2000000000022
+    Paracetamol jarabe ....... 2000000000039
+
+Para volver a empezar: Ajustes → toca la tarjeta del modo demo (borra los datos demo)
+y vuélvela a tocar para cargarlos con una toma nueva en +2 min.
+
+
+PROBLEMAS COMUNES
+-----------------
+- "Unsupported class file major version" o Gradle falla con "25.0.2"
+    → falta JDK 21: brew install openjdk@21
+- "No encuentro el Android SDK" → instala Android Studio y abre su SDK Manager una vez.
+- La notificación tarda un minuto → falta el permiso "Alarmas y recordatorios":
+    en Inicio toca "Abrir ajustes de Android" y actívalo (run.sh ya lo concede).
+- Cambié código y la app sigue igual → usa ./run.sh --build

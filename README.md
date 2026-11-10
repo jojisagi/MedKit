@@ -22,6 +22,8 @@ Formas de confirmar una toma: botón en la app, acción «Ya la tomé» en la no
 
 ## Compilar
 
+> **Para simularla en la Mac (o si tienes iPhone):** sigue [run.txt](run.txt) o corre `./run.sh`, que abre el emulador Android, instala el APK y abre la app.
+
 Requisitos: Flutter 3.35+, Android SDK, **JDK 17 o 21** (Gradle 8.12 no soporta Java 25).
 
 ```bash
