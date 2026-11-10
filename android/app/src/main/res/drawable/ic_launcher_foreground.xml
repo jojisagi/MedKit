@@ -1,0 +1,9 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Cruz blanca de señalética -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M47,30h14a2,2 0,0 1,2 2v13h13a2,2 0,0 1,2 2v14a2,2 0,0 1,-2 2H63v13a2,2 0,0 1,-2 2H47a2,2 0,0 1,-2 -2V63H32a2,2 0,0 1,-2 -2V47a2,2 0,0 1,2 -2h13V32a2,2 0,0 1,2 -2z"/>
+    <!-- La línea verde que se sigue -->
+    <path android:fillColor="#FF2FBF86"
+        android:pathData="M30,84h48a3,3 0,0 1,0 6H30a3,3 0,0 1,0 -6z"/>
+</vector>
