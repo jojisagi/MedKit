@@ -42,6 +42,26 @@ O con Flutter, para desarrollo con recarga en caliente:
        flutter run
 
 
+INSTALAR EN UN TELÉFONO ANDROID FÍSICO (para escanear cajas reales)
+-------------------------------------------------------------------
+APK ligero (~28 MB, teléfonos de los últimos ~8 años, arm64):
+    cd android && JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home \
+      ./gradlew assembleRelease -Ptarget-platform=android-arm64 -Parm64Only && cd ..
+    → build/app/outputs/flutter-apk/app-release.apk
+
+Por cable: en el teléfono activa Opciones de desarrollador → Depuración USB
+(en Xiaomi también "Instalar vía USB"), conéctalo y:
+    ~/Library/Android/sdk/platform-tools/adb devices          (ve el ID del teléfono)
+    ~/Library/Android/sdk/platform-tools/adb -s ID install -r build/app/outputs/flutter-apk/app-release.apk
+
+Sin cable: manda el .apk por Drive, Telegram o WhatsApp (como documento), ábrelo
+en el teléfono y permite "Instalar apps desconocidas" para esa app.
+
+En Xiaomi/Redmi, para que las notificaciones lleguen con la app cerrada:
+Ajustes → Apps → Mi Botiquín → Ahorro de batería → "Sin restricciones",
+y activa "Inicio automático".
+
+
 GUION DE DEMO (unos 5 minutos)
 ------------------------------
 1. Inicio → "Probar con datos demo" → toca la tarjeta "Cargar datos de prueba".

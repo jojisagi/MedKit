@@ -25,10 +25,17 @@ android {
         applicationId = "mx.lasalle.mi_botiquin"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 23 // SPEC §8
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // APK ligero para teléfonos modernos: ./gradlew assembleRelease -Parm64Only
+    }
+
+    if (project.hasProperty("arm64Only")) {
+        packaging {
+            jniLibs { excludes += listOf("lib/armeabi-v7a/**", "lib/x86_64/**", "lib/x86/**") }
+        }
     }
 
     buildTypes {
