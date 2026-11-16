@@ -22,6 +22,7 @@ class _AlreadyHaveScreenState extends ConsumerState<AlreadyHaveScreen> {
   bool _loading = true;
   String? _gtin;
   Product? _product;
+  Product? _known; // del catálogo, cuando no está en tu botiquín
   List<Box> _boxes = const [];
 
   @override
@@ -43,11 +44,13 @@ class _AlreadyHaveScreenState extends ConsumerState<AlreadyHaveScreen> {
       return;
     }
     final p = await ref.read(productRepoProvider).findByGtin(r.gtin14);
+    final known = p == null ? (await ref.read(catalogProvider.future)).lookup(r.gtin14) : null;
     final boxes = p == null ? <Box>[] : await ref.read(boxRepoProvider).activeForProduct(p.id!);
     if (!mounted) return;
     setState(() {
       _gtin = r.gtin14;
       _product = p;
+      _known = known;
       _boxes = boxes;
       _loading = false;
     });
@@ -69,7 +72,9 @@ class _AlreadyHaveScreenState extends ConsumerState<AlreadyHaveScreen> {
                     icon: Icons.search_off_rounded,
                     title: 'No tienes este medicamento',
                     body: _product == null
-                        ? 'No está en tu botiquín.'
+                        ? (_known == null
+                              ? 'No está en tu botiquín.'
+                              : '${productTitle(_known!)} no está en tu botiquín.')
                         : '${productTitle(_product!)} está en tu catálogo, pero no tienes cajas activas.',
                     actions: [
                       FilledButton.icon(

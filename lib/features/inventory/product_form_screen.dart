@@ -45,6 +45,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     super.initState();
     _gtin = widget.gtin == null ? null : normalizeGtin(widget.gtin!);
     if (_isEdit) _load();
+    if (!_isEdit && _gtin != null) _prefillFromCatalog(_gtin!);
     _perBox.addListener(() {
       // Copia el contenido por caja a "unidades en la caja" mientras el usuario no lo cambie.
       if (!_isEdit && (_box.units.text.isEmpty || _box.units.text == _lastAutoUnits)) {
@@ -55,6 +56,23 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   }
 
   String? _lastAutoUnits;
+
+  /// Nombre del producto si los datos vinieron del catálogo empaquetado.
+  bool _fromCatalog = false;
+
+  Future<void> _prefillFromCatalog(String gtin14) async {
+    final c = (await ref.read(catalogProvider.future)).lookup(gtin14);
+    if (c == null || !mounted) return;
+    setState(() {
+      _fromCatalog = true;
+      _name.text = c.name;
+      _ingredient.text = c.activeIngredient ?? '';
+      _strength.text = c.strength ?? '';
+      _presentation = c.form;
+      _unit = c.unit;
+      _perBox.text = c.unitsPerBox > 0 ? fmtUnits(c.unitsPerBox) : '';
+    });
+  }
 
   Future<void> _load() async {
     final p = await ref.read(productRepoProvider).get(widget.productId!);
@@ -86,6 +104,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       if (r.gs1?.expiresOn != null) _box.setExpires(r.gs1!.expiresOn!);
       if (r.gs1?.lot != null) _box.lot.text = r.gs1!.lot!;
     });
+    if (!_isEdit) await _prefillFromCatalog(r.gtin14);
   }
 
   Future<void> _save() async {
@@ -162,7 +181,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                           style: context.text.titleSmall,
                         ),
                         Text(
-                          _gtin ?? 'Escanéalo para reconocer esta caja la próxima vez.',
+                          (_gtin == null ? null : displayGtin(_gtin!)) ??
+                              'Escanéalo para reconocer esta caja la próxima vez.',
                           style: _gtin == null ? context.text.bodySmall : numerals(context.text.bodyMedium!),
                         ),
                       ],
@@ -173,6 +193,14 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 ],
               ),
             ),
+            if (_fromCatalog) ...[
+              const SizedBox(height: 12),
+              const Notice(
+                icon: Icons.auto_awesome_outlined,
+                title: 'Datos precargados del catálogo',
+                body: 'Revísalos y completa la caducidad y de quién es la caja.',
+              ),
+            ],
             const SizedBox(height: 20),
             TextFormField(
               controller: _name,

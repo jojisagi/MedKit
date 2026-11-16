@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../domain/catalog.dart';
 import '../domain/inventory_rules.dart';
 import '../domain/models.dart';
 import '../services/dose_confirmation_service.dart';
@@ -30,6 +32,15 @@ final schedulerProvider = Provider((ref) => SchedulerService(ref.watch(databaseP
 final confirmationProvider = Provider((ref) {
   final n = ref.watch(notificationsProvider);
   return DoseConfirmationService(ref.watch(databaseProvider), onConfirmed: n.cancelDose);
+});
+
+/// Catálogo de referencia empaquetado: se lee una vez. Si falla, la app sigue sin él.
+final catalogProvider = FutureProvider<Catalog>((ref) async {
+  try {
+    return parseCatalogCsv(await rootBundle.loadString('assets/catalog/medicamentos.csv'));
+  } catch (_) {
+    return Catalog.empty;
+  }
 });
 
 /// Se incrementa tras cada escritura; las consultas lo observan para recargarse.

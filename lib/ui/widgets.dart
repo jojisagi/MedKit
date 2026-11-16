@@ -25,6 +25,15 @@ String dayWord(DateTime d, DateTime now) {
   return DateFormat('EEEE', 'es_MX').format(d);
 }
 
+/// GTIN-14 → como viene impreso en la caja (13 dígitos, o 12 si es UPC-A).
+String displayGtin(String gtin14) {
+  var g = gtin14;
+  while (g.length > 12 && g.startsWith('0')) {
+    g = g.substring(1);
+  }
+  return g;
+}
+
 String fmtUnits(double v) {
   if (v == v.roundToDouble()) return v.toInt().toString();
   return v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '');

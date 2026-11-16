@@ -42,6 +42,21 @@ flutter config --jdk-dir=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Conten
 
 El APK release pesa ~73 MB porque incluye todas las arquitecturas y el modelo de lectura de códigos (funciona sin Internet). Para APKs más ligeros por arquitectura: `flutter build apk --release --split-per-abi`.
 
+## Catálogo de medicamentos precargado
+
+`assets/catalog/medicamentos.csv` viaja dentro de la app. Al escanear un código que no está en tu botiquín pero sí en el catálogo, el formulario se llena solo (nombre, sustancia, concentración, presentación y contenido); solo falta capturar la caducidad y de quién es la caja.
+
+Columnas: `barcode, nombre, sustancia, concentracion, presentacion, contenido de caja` (opcional `unidad`). Si la concentración es solo un número se asume **mg**; varias sustancias van separadas por coma en el mismo orden que sus concentraciones. Solo datos de identificación: nada de dosis ni indicaciones.
+
+Para actualizarlo desde Excel:
+
+```bash
+python3 tool/xlsx_to_csv.py "BD medicamentos.xlsx" --csv assets/catalog/medicamentos.csv
+flutter test test/domain/catalog_test.dart   # valida los códigos de barras
+```
+
+Ajusta en esa prueba el número esperado de medicamentos si agregaste filas.
+
 ## Permisos y por qué
 
 | Permiso | Uso |

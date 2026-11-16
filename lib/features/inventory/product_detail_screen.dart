@@ -77,7 +77,7 @@ class ProductDetailScreen extends ConsumerWidget {
                 if (p.gtin != null) ...[
                   const SizedBox(height: 12),
                   Text(
-                    'Código ${p.gtin!.startsWith('0') ? p.gtin!.substring(1) : p.gtin}',
+                    'Código ${displayGtin(p.gtin!)}',
                     style: numerals(context.text.bodySmall!.copyWith(color: context.sign.onPlateSoft)),
                   ),
                 ],

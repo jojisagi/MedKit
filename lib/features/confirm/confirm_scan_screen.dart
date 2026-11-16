@@ -134,10 +134,11 @@ class _ConfirmScanScreenState extends ConsumerState<ConfirmScanScreen> {
         : await ref.read(doseRepoProvider).confirmableWithProduct(product.id!, DateTime.now());
     switch (matchScan(scanned: product, confirmable: [for (final c in confirmable) c.dose])) {
       case ScanMatchKind.unknownProduct:
+        final known = (await ref.read(catalogProvider.future)).lookup(scan.gtin14);
         return _set(
           _Message(
             Icons.inventory_2_outlined,
-            'Este medicamento no está en tu botiquín',
+            known == null ? 'Este medicamento no está en tu botiquín' : '${productTitle(known)} no está en tu botiquín',
             'Regístralo para que la próxima vez se reconozca al escanearlo.',
             gtinToRegister: scan.gtin14,
           ),
