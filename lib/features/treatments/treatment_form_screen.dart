@@ -121,7 +121,7 @@ class _TreatmentFormScreenState extends ConsumerState<TreatmentFormScreen> {
         icon: const Icon(Icons.notifications_active_outlined, size: 36),
         title: const Text('¿Te avisamos a la hora de cada toma?'),
         content: const Text(
-          'Mi Botiquín te mandará una notificación a la hora exacta y otra si la toma sigue '
+          'Medkit te mandará una notificación a la hora exacta y otra si la toma sigue '
           'pendiente. Las notificaciones se generan en tu teléfono; nada sale de él.',
         ),
         actions: [
@@ -334,7 +334,7 @@ class _TreatmentFormScreenState extends ConsumerState<TreatmentFormScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Captura las indicaciones tal como las dio el médico. Mi Botiquín no recomienda dosis.',
+              'Captura las indicaciones tal como las dio el médico. Medkit no recomienda dosis.',
               style: context.text.bodySmall!.copyWith(color: t.inkSoft),
             ),
             const SizedBox(height: 24),

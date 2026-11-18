@@ -1,10 +1,12 @@
-# Mi Botiquín
+# Medkit
+
+*(proyecto «Mi Botiquín» en la especificación)*
 
 App Android (Flutter) para organizar el botiquín del hogar: inventario por cajas, tratamientos por persona, recordatorios de cada toma y confirmación **escaneando el código de barras de la caja**, que además verifica que se está dando el medicamento correcto.
 
 **100 % offline.** No hay cuentas, servidores ni APIs: todo se guarda en SQLite dentro del teléfono y el APK de release no pide permiso de Internet.
 
-> Mi Botiquín no diagnostica ni recomienda medicamentos. Consulta siempre a tu médico.
+> Medkit no diagnostica ni recomienda medicamentos. Consulta siempre a tu médico.
 
 Equipo Inmóviles: Héctor Armando González Espinosa, Juan Manuel Palafox Valdés, Jorge Sánchez Girón.
 
@@ -18,7 +20,7 @@ Equipo Inmóviles: Héctor Armando González Espinosa, Juan Manuel Palafox Vald�
 | **Historial** | Tomas por tratamiento y % de cumplimiento = (a tiempo + tardías) ÷ (a tiempo + tardías + omitidas). |
 | **Ajustes** | Días de alerta, modo demo y aviso legal. |
 
-Formas de confirmar una toma: botón en la app, acción «Ya la tomé» en la notificación (funciona con la app cerrada) o escaneando la caja. Si se escanea una caja que no corresponde, aparece una advertencia roja y la toma **no** se confirma. El inventario se descuenta solo al confirmar, primero de la caja que caduca antes (FEFO) y nunca de cajas caducadas.
+Formas de confirmar una toma: escaneando la caja, botón en la app o acción «Ya la tomé» en la notificación (funciona con la app cerrada). Con **Ajustes → Confirmar solo escaneando** (encendido por defecto) se exige escanear la caja o teclear su código: se ocultan los botones manuales y la notificación ofrece «Escanear caja», que abre el escáner con la toma preseleccionada. Si se escanea una caja que no corresponde, aparece una advertencia roja y la toma **no** se confirma. El inventario se descuenta solo al confirmar, primero de la caja que caduca antes (FEFO) y nunca de cajas caducadas.
 
 ## Compilar
 

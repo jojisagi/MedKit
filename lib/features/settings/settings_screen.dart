@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../data/demo_seed.dart';
 import '../../data/providers.dart';
+import '../../ui/brand.dart';
 import '../../ui/theme.dart';
 import '../../ui/widgets.dart';
 
@@ -40,6 +41,38 @@ class SettingsScreen extends ConsumerWidget {
               unit: 'días o menos',
               options: const [2, 3, 5, 7, 10],
               onChanged: (v) => _set(ref, 'low_stock_days', '$v'),
+            ),
+            const SectionTitle('Confirmación de tomas'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Panel(
+                onTap: () => _setScanOnly(context, ref, !s.requireScan),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.qr_code_scanner_rounded, color: t.ink, size: 28),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Confirmar solo escaneando', style: context.text.titleMedium),
+                          const SizedBox(height: 4),
+                          Text(
+                            s.requireScan
+                                ? 'Cada toma se confirma escaneando la caja (o escribiendo su código), '
+                                      'así se verifica que es el medicamento correcto. Se ocultan los botones «Ya la tomó».'
+                                : 'También se puede confirmar con el botón «Ya la tomó» o desde la notificación, sin escanear.',
+                            style: context.text.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Switch(value: s.requireScan, onChanged: (v) => _setScanOnly(context, ref, v)),
+                  ],
+                ),
+              ),
             ),
             const SectionTitle('Modo demo'),
             Padding(
@@ -95,14 +128,14 @@ class SettingsScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.health_and_safety_outlined, color: t.onPlate, size: 30),
+                      const MedkitLogo(size: 40),
                       const SizedBox(width: 12),
-                      Text('Mi Botiquín', style: context.text.headlineSmall!.copyWith(color: t.onPlate)),
+                      Text('Medkit', style: context.text.headlineSmall!.copyWith(color: t.onPlate)),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Mi Botiquín no diagnostica ni recomienda medicamentos. Consulta siempre a tu médico.',
+                    'Medkit no diagnostica ni recomienda medicamentos. Consulta siempre a tu médico.',
                     style: context.text.bodyLarge!.copyWith(color: t.onPlate),
                   ),
                   const SizedBox(height: 12),
@@ -139,6 +172,16 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _set(WidgetRef ref, String key, String value) async {
     await ref.read(settingsRepoProvider).set(key, value);
     ref.read(actionsProvider).changed();
+  }
+
+  Future<void> _setScanOnly(BuildContext context, WidgetRef ref, bool on) async {
+    await ref.read(settingsRepoProvider).set('require_scan', on ? '1' : '0');
+    ref.read(actionsProvider).changed();
+    // El botón de la notificación cambia («Ya la tomé» ↔ «Escanear caja»).
+    await ref.read(actionsProvider).rescheduleAll();
+    if (context.mounted) {
+      showMessage(context, on ? 'Las tomas se confirmarán escaneando la caja' : 'Confirmación manual permitida');
+    }
   }
 
   Future<void> _loadDemo(BuildContext context, WidgetRef ref) async {

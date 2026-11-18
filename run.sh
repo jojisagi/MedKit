@@ -1,5 +1,5 @@
 #!/bin/bash
-# Mi Botiquín — abre el emulador Android, compila (si hace falta), instala y abre la app.
+# Medkit — abre el emulador Android, compila (si hace falta), instala y abre la app.
 # Uso:   ./run.sh            → usa el APK ya compilado si existe
 #        ./run.sh --build    → recompila antes de instalar
 set -e
@@ -15,20 +15,22 @@ JDK21="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
 
 [ -x "$ADB" ] || { echo "No encuentro el Android SDK en $SDK (instala Android Studio)."; exit 1; }
 
-# 1. Emulador
-if ! "$ADB" devices | grep -q "emulator-.*device$"; then
+# 1. Emulador (aunque haya un teléfono conectado, se usa el emulador)
+emu_serial() { "$ADB" devices | awk '/^emulator-[0-9]+[[:space:]]+device$/ {print $1; exit}'; }
+if [ -z "$(emu_serial)" ]; then
   if ! "$EMULATOR" -list-avds | grep -qx "$AVD"; then
     echo "No existe el emulador $AVD. Disponibles:"; "$EMULATOR" -list-avds
     echo "Usa uno así:  AVD=NombreDelEmulador ./run.sh"; exit 1
   fi
   echo "▶ Abriendo emulador $AVD…"
   nohup "$EMULATOR" -avd "$AVD" -no-snapshot-save -no-boot-anim >/dev/null 2>&1 &
-  "$ADB" wait-for-device
-  until [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do sleep 2; done
+  until [ -n "$(emu_serial)" ]; do sleep 2; done
+  until [ "$("$ADB" -s "$(emu_serial)" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do sleep 2; done
   echo "✓ Emulador listo"
 else
   echo "✓ Emulador ya abierto"
 fi
+export ANDROID_SERIAL="$(emu_serial)"
 
 # 2. Compilar (Gradle 8.12 necesita JDK 17/21; Java 25 no sirve)
 if [ "$1" = "--build" ] || [ ! -f "$APK" ]; then
@@ -47,5 +49,5 @@ echo "▶ Instalando…"
 "$ADB" shell pm grant "$PKG" android.permission.CAMERA 2>/dev/null || true
 "$ADB" shell appops set "$PKG" SCHEDULE_EXACT_ALARM allow 2>/dev/null || true
 "$ADB" shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
-echo "✓ Mi Botiquín abierta en el emulador."
+echo "✓ Medkit abierta en el emulador."
 echo "  Siguiente paso: toca «Probar con datos demo» → «Cargar datos de prueba» (ver run.txt)."

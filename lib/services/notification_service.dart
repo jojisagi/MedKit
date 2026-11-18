@@ -29,6 +29,9 @@ const _channelAlerts = AndroidNotificationChannel(
 );
 
 const actionConfirm = 'confirm';
+
+/// Con «Confirmar solo escaneando»: abre la app directo en el escáner de esa toma.
+const actionScan = 'scan';
 const _dailyAlertId = 2000000000;
 
 String formatUnits(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toString();
@@ -91,7 +94,8 @@ class NotificationService {
     final launch = await _plugin.getNotificationAppLaunchDetails();
     if (launch?.didNotificationLaunchApp ?? false) {
       final r = launch!.notificationResponse;
-      if (r != null && r.actionId == null) return int.tryParse(r.payload ?? '');
+      // Tocar el cuerpo o «Escanear caja» abre el escáner de esa toma.
+      if (r != null && (r.actionId == null || r.actionId == actionScan)) return int.tryParse(r.payload ?? '');
     }
     return null;
   }
@@ -121,7 +125,7 @@ class NotificationService {
   Future<bool> notificationsEnabled() async => await _android?.areNotificationsEnabled() ?? true;
 
   /// [timeoutMin]: la principal se retira sola cuando llega el reintento (no se duplican).
-  NotificationDetails _doseDetails(Profile profile, {int? timeoutMin}) => NotificationDetails(
+  NotificationDetails _doseDetails(Profile profile, {int? timeoutMin, bool requireScan = false}) => NotificationDetails(
     android: AndroidNotificationDetails(
       _channelDoses.id,
       _channelDoses.name,
@@ -133,12 +137,16 @@ class NotificationService {
       color: Color(profile.color),
       colorized: false,
       ticker: 'Toma de ${profile.name}',
-      actions: const [AndroidNotificationAction(actionConfirm, 'Ya la tomé', cancelNotification: true)],
+      actions: [
+        requireScan
+            ? const AndroidNotificationAction(actionScan, 'Escanear caja', showsUserInterface: true)
+            : const AndroidNotificationAction(actionConfirm, 'Ya la tomé', cancelNotification: true),
+      ],
     ),
   );
 
   /// R2: principal a la hora exacta + reintento a +tolerancia. Ignora horas pasadas.
-  Future<void> scheduleDose(DoseDetail d, {DateTime? now}) async {
+  Future<void> scheduleDose(DoseDetail d, {DateTime? now, bool requireScan = false}) async {
     if (!_ready || d.dose.status != DoseStatus.pending) return;
     final at = now ?? DateTime.now();
     final p = d.product;
@@ -151,7 +159,7 @@ class NotificationService {
       await _plugin.zonedSchedule(
         id: notificationId(d.dose.id!),
         scheduledDate: tz.TZDateTime.from(main, tz.local),
-        notificationDetails: _doseDetails(d.profile, timeoutMin: d.treatment.toleranceMin),
+        notificationDetails: _doseDetails(d.profile, timeoutMin: d.treatment.toleranceMin, requireScan: requireScan),
         androidScheduleMode: mode,
         title: title,
         body: body,
@@ -162,7 +170,7 @@ class NotificationService {
       await _plugin.zonedSchedule(
         id: notificationId(d.dose.id!, retry: true),
         scheduledDate: tz.TZDateTime.from(retry, tz.local),
-        notificationDetails: _doseDetails(d.profile),
+        notificationDetails: _doseDetails(d.profile, requireScan: requireScan),
         androidScheduleMode: mode,
         title: 'Sigue pendiente: $title',
         body: body,

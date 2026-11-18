@@ -25,10 +25,26 @@ void main() {
     db = await openAppDatabase(path: '${Directory.systemTemp.createTempSync('mb').path}/t.db');
     final pid = await ProfileRepository(db).insert(Profile(name: 'Ana', color: 1, createdAt: DateTime(2026)));
     prodId = await ProductRepository(db).upsert(const Product(gtin: '04006381333931', name: 'Ibuprofeno'));
-    boxId = await BoxRepository(db).insert(Box(
-        productId: prodId, profileId: pid, unitsInitial: 10, unitsLeft: 10, expiresOn: DateTime(2027), addedAt: start));
-    tid = await TreatmentRepository(db).insert(Treatment(
-        profileId: pid, productId: prodId, dose: 1, scheduleType: ScheduleType.interval, intervalHours: 8, startsAt: start));
+    boxId = await BoxRepository(db).insert(
+      Box(
+        productId: prodId,
+        profileId: pid,
+        unitsInitial: 10,
+        unitsLeft: 10,
+        expiresOn: DateTime(2027),
+        addedAt: start,
+      ),
+    );
+    tid = await TreatmentRepository(db).insert(
+      Treatment(
+        profileId: pid,
+        productId: prodId,
+        dose: 1,
+        scheduleType: ScheduleType.interval,
+        intervalHours: 8,
+        startsAt: start,
+      ),
+    );
   });
   tearDown(() => db.close());
 

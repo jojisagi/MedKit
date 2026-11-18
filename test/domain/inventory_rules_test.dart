@@ -3,15 +3,15 @@ import 'package:mi_botiquin/domain/inventory_rules.dart';
 import 'package:mi_botiquin/domain/models.dart';
 
 Box box(int id, {int? profileId, double units = 10, required DateTime expires, bool archived = false}) => Box(
-      id: id,
-      productId: 1,
-      profileId: profileId,
-      unitsInitial: units,
-      unitsLeft: units,
-      expiresOn: expires,
-      addedAt: DateTime(2026, 1, 1),
-      archived: archived,
-    );
+  id: id,
+  productId: 1,
+  profileId: profileId,
+  unitsInitial: units,
+  unitsLeft: units,
+  expiresOn: expires,
+  addedAt: DateTime(2026, 1, 1),
+  archived: archived,
+);
 
 void main() {
   final today = DateTime(2026, 11, 10);
@@ -60,7 +60,14 @@ void main() {
 
   test('daysRemaining', () {
     final t = Treatment(
-        id: 1, profileId: 1, productId: 1, dose: 1, scheduleType: ScheduleType.interval, intervalHours: 8, startsAt: today);
+      id: 1,
+      profileId: 1,
+      productId: 1,
+      dose: 1,
+      scheduleType: ScheduleType.interval,
+      intervalHours: 8,
+      startsAt: today,
+    );
     expect(daysRemaining(10, t), closeTo(3.33, 0.01));
     expect(daysRemaining(10, t.copyWith(dose: 0)), double.infinity);
   });

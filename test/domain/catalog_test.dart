@@ -59,8 +59,10 @@ void main() {
   });
 
   test('líquidos usan ml', () {
-    final c = parseCatalogCsv('barcode,nombre,sustancia,concentracion,presentacion,contenido de caja\n'
-        '7501644753060,Jarabe X,Ambroxol,15 mg/5 ml,jarabe,120\n');
+    final c = parseCatalogCsv(
+      'barcode,nombre,sustancia,concentracion,presentacion,contenido de caja\n'
+      '7501644753060,Jarabe X,Ambroxol,15 mg/5 ml,jarabe,120\n',
+    );
     expect(c.entries.values.single.unit, 'ml');
   });
 

@@ -167,9 +167,10 @@ class AppActions {
   Future<void> refreshSchedule() async {
     final created = await ref.read(schedulerProvider).refresh();
     final repo = ref.read(doseRepoProvider);
+    final scanOnly = await _scanOnly();
     for (final d in created) {
       final detail = await repo.detail(d.id!);
-      if (detail != null) await _n.scheduleDose(detail);
+      if (detail != null) await _n.scheduleDose(detail, requireScan: scanOnly);
     }
     ref.read(dataVersionProvider.notifier).bump();
     unawaited(_refreshDailyAlerts());
@@ -182,15 +183,19 @@ class AppActions {
     } catch (_) {}
   }
 
-  /// Reprograma todas las notificaciones pendientes (tras conceder alarmas exactas, por ejemplo).
+  Future<bool> _scanOnly() async => (await ref.read(settingsRepoProvider).load()).requireScan;
+
+  /// Reprograma todas las notificaciones pendientes (tras conceder alarmas exactas o cambiar
+  /// «Confirmar solo escaneando», que cambia el botón de la notificación).
   Future<void> rescheduleAll() async {
     final now = DateTime.now();
     final repo = ref.read(doseRepoProvider);
+    final scanOnly = await _scanOnly();
     for (final d in await repo.detailsBetween(
       now.subtract(const Duration(hours: 2)),
       now.add(const Duration(days: 4)),
     )) {
-      await _n.scheduleDose(d);
+      await _n.scheduleDose(d, requireScan: scanOnly);
     }
   }
 

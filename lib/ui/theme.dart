@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../domain/profile_colors.dart';
+
 /// Mundo visual: señalética hospitalaria. Muro claro, placas azul marino,
 /// una línea de color por integrante de la familia. El rojo solo significa
 /// omitida, caducada o caja equivocada.
@@ -24,18 +26,9 @@ abstract final class Palette {
   static const cautionLine = Color(0xFFF2B705);
   static const ok = Color(0xFF1F7A5A);
 
-  /// Colores de zona para perfiles (contraste ≥ 4.5:1 sobre blanco).
-  static const zones = <Color>[
-    Color(0xFF1F7A5A), // verde
-    Color(0xFF2F5FD0), // azul
-    Color(0xFFA0661A), // mostaza
-    Color(0xFFB83A72), // magenta
-    Color(0xFF0F7484), // petróleo
-    Color(0xFFB4532A), // ladrillo
-    Color(0xFF6A4FC4), // violeta
-  ];
-
-  static const zoneNames = ['Verde', 'Azul', 'Mostaza', 'Magenta', 'Petróleo', 'Ladrillo', 'Violeta'];
+  /// Colores de zona por persona: ver `domain/profile_colors.dart` (10 tonos, ΔE ≥ 15 entre sí).
+  static final zones = <Color>[for (final c in profilePalette) Color(c.argb)];
+  static final zoneNames = <String>[for (final c in profilePalette) c.name];
 }
 
 /// Peso real del eje variable (Flutter no siempre lo deriva de FontWeight).

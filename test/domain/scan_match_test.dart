@@ -23,7 +23,9 @@ void main() {
     expect([notificationId(7), notificationId(7, retry: true)], [14, 15]);
     final ids = <int>{};
     for (var i = 1; i <= 1000; i++) {
-      ids..add(notificationId(i))..add(notificationId(i, retry: true));
+      ids
+        ..add(notificationId(i))
+        ..add(notificationId(i, retry: true));
     }
     expect(ids.length, 2000);
   });
@@ -31,8 +33,10 @@ void main() {
   group('compliance', () {
     Dose d(DoseStatus s) => Dose(treatmentId: 1, scheduledAt: DateTime(2026), status: s);
     test('2/3', () {
-      expect(compliance([d(DoseStatus.onTime), d(DoseStatus.late), d(DoseStatus.missed), d(DoseStatus.pending)]),
-          closeTo(2 / 3, 1e-9));
+      expect(
+        compliance([d(DoseStatus.onTime), d(DoseStatus.late), d(DoseStatus.missed), d(DoseStatus.pending)]),
+        closeTo(2 / 3, 1e-9),
+      );
     });
     test('sin cerradas', () {
       expect(compliance([d(DoseStatus.pending)]), isNull);

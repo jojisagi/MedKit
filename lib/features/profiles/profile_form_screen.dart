@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../data/providers.dart';
 import '../../domain/models.dart';
+import '../../domain/profile_colors.dart';
 import '../../ui/theme.dart';
 import '../../ui/widgets.dart';
 
@@ -19,28 +20,31 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
   final _form = GlobalKey<FormState>();
   final _name = TextEditingController();
   Profile? _editing;
-  int _color = Palette.zones.first.toARGB32();
+  int _color = profilePalette.first.argb;
+
+  /// Colores de las demás personas: no se pueden repetir.
+  List<int> _usedByOthers = const [];
 
   @override
   void initState() {
     super.initState();
-    if (widget.profileId != null) {
-      ref.read(profileRepoProvider).get(widget.profileId!).then((p) {
-        if (p == null || !mounted) return;
-        setState(() {
-          _editing = p;
-          _name.text = p.name;
-          _color = p.color;
-        });
+    ref.read(profileRepoProvider).all().then((all) {
+      if (!mounted) return;
+      final me = widget.profileId == null ? null : all.where((p) => p.id == widget.profileId).firstOrNull;
+      setState(() {
+        _usedByOthers = [
+          for (final p in all)
+            if (p.id != widget.profileId) p.color,
+        ];
+        if (me != null) {
+          _editing = me;
+          _name.text = me.name;
+          _color = me.color;
+        } else {
+          _color = suggestProfileColor(_usedByOthers);
+        }
       });
-    } else {
-      // Sugerir el primer color que nadie usa.
-      ref.read(profileRepoProvider).all().then((all) {
-        final used = all.map((p) => p.color).toSet();
-        final free = Palette.zones.map((c) => c.toARGB32()).where((c) => !used.contains(c));
-        if (free.isNotEmpty && mounted) setState(() => _color = free.first);
-      });
-    }
+    });
   }
 
   Future<void> _save() async {
@@ -84,37 +88,23 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
               validator: (v) => (v ?? '').trim().isEmpty ? 'Escribe un nombre' : null,
             ),
             const SectionTitle('Su color', padding: EdgeInsets.fromLTRB(0, 28, 0, 6)),
-            Text('Identifica su línea de tomas, sus cajas y sus notificaciones.', style: context.text.bodyMedium),
+            Text(
+              'Identifica su línea de tomas, sus cajas y sus notificaciones. '
+              'Los colores tachados ya los usa otra persona.',
+              style: context.text.bodyMedium,
+            ),
             const SizedBox(height: 16),
             Wrap(
-              spacing: 12,
+              spacing: 4,
               runSpacing: 12,
               children: [
-                for (var i = 0; i < Palette.zones.length; i++)
-                  Semantics(
-                    button: true,
-                    selected: _color == Palette.zones[i].toARGB32(),
-                    label: Palette.zoneNames[i],
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () => setState(() => _color = Palette.zones[i].toARGB32()),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Palette.zones[i],
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: _color == Palette.zones[i].toARGB32() ? context.sign.ink : Colors.transparent,
-                            width: 3,
-                          ),
-                        ),
-                        child: _color == Palette.zones[i].toARGB32()
-                            ? const Icon(Icons.check_rounded, color: Colors.white, size: 30)
-                            : null,
-                      ),
-                    ),
+                for (final c in profilePalette)
+                  _Swatch(
+                    color: Color(c.argb),
+                    name: c.name,
+                    selected: _color == c.argb,
+                    available: isProfileColorAvailable(c.argb, _usedByOthers),
+                    onTap: () => setState(() => _color = c.argb),
                   ),
               ],
             ),
@@ -131,6 +121,65 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
             const SizedBox(height: 28),
             FilledButton(onPressed: _save, child: Text(_editing == null ? 'Guardar persona' : 'Guardar cambios')),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Muestra de color con nombre. Ocupada = tachada y deshabilitada.
+class _Swatch extends StatelessWidget {
+  final Color color;
+  final String name;
+  final bool selected;
+  final bool available;
+  final VoidCallback onTap;
+  const _Swatch({
+    required this.color,
+    required this.name,
+    required this.selected,
+    required this.available,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sign;
+    return Semantics(
+      button: true,
+      selected: selected,
+      enabled: available,
+      label: available ? name : '$name, ya lo usa otra persona',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: available ? onTap : null,
+        child: SizedBox(
+          width: 72,
+          child: Column(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: available ? color : color.withValues(alpha: 0.28),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: selected ? t.ink : Colors.transparent, width: 3),
+                ),
+                child: selected
+                    ? const Icon(Icons.check_rounded, color: Colors.white, size: 30)
+                    : (available ? null : Icon(Icons.block_rounded, color: t.inkSoft, size: 26)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                name,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.visible,
+                style: context.text.labelSmall!.copyWith(color: available ? t.inkSoft : t.inkFaint),
+              ),
+            ],
+          ),
         ),
       ),
     );

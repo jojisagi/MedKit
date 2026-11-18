@@ -7,6 +7,7 @@ import '../../data/providers.dart';
 import '../../domain/dose_rules.dart';
 import '../../domain/inventory_rules.dart';
 import '../../domain/models.dart';
+import '../../ui/brand.dart';
 import '../../ui/theme.dart';
 import '../../ui/widgets.dart';
 import '../confirm/confirm_feedback.dart';
@@ -36,31 +37,32 @@ class HomeScreen extends ConsumerWidget {
         onRefresh: () => ref.read(actionsProvider).refreshSchedule(),
         child: CustomScrollView(
           slivers: [
-            SliverSafeArea(
-              bottom: false,
-              sliver: SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 8, 0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Hoy', style: context.text.displaySmall),
-                            const SizedBox(height: 2),
-                            Text(fmtDay(now), style: context.text.bodyLarge!.copyWith(color: context.sign.inkSoft)),
-                          ],
-                        ),
+            SliverToBoxAdapter(
+              child: MedkitBanner(
+                trailing: IconButton(
+                  tooltip: '¿Ya lo tengo?',
+                  onPressed: () => context.push('/already-have'),
+                  icon: const Icon(Icons.manage_search_rounded, size: 28, color: Colors.white),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text('Hoy', style: context.text.headlineLarge),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        fmtDay(now),
+                        overflow: TextOverflow.ellipsis,
+                        style: context.text.bodyLarge!.copyWith(color: context.sign.inkSoft),
                       ),
-                      IconButton(
-                        tooltip: '¿Ya lo tengo?',
-                        onPressed: () => context.push('/already-have'),
-                        icon: const Icon(Icons.manage_search_rounded, size: 28),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -192,7 +194,9 @@ class HomeScreen extends ConsumerWidget {
               plateDoseId: next?.dose.id,
               onOpen: (d) => showDoseSheet(context, ref, d),
               onScan: (d) => context.push('/confirm-scan?doseId=${d.dose.id}'),
-              onManual: (d) => confirmManually(context, ref, d),
+              onManual: (ref.watch(settingsProvider).value?.requireScan ?? true)
+                  ? null
+                  : (d) => confirmManually(context, ref, d),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
@@ -263,6 +267,7 @@ class _NextPlate extends ConsumerWidget {
     final otherDay = next == null;
     final zone = Color(d.profile.color);
     final confirmable = canConfirm(d.dose.scheduledAt, now, d.treatment.missAfterMin);
+    final scanOnly = ref.watch(settingsProvider).value?.requireScan ?? true;
     final overdue = now.isAfter(d.dose.scheduledAt.add(Duration(minutes: d.treatment.toleranceMin)));
     return Plate(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
@@ -331,16 +336,18 @@ class _NextPlate extends ConsumerWidget {
                     label: const Text('Escanear la caja'),
                   ),
                 ),
-                const SizedBox(width: 10),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Color(0x80FFFFFF), width: 1.5),
-                    minimumSize: const Size(48, 56),
+                if (!scanOnly) ...[
+                  const SizedBox(width: 10),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0x80FFFFFF), width: 1.5),
+                      minimumSize: const Size(48, 56),
+                    ),
+                    onPressed: () => confirmManually(context, ref, d),
+                    child: const Text('Ya la tomó'),
                   ),
-                  onPressed: () => confirmManually(context, ref, d),
-                  child: const Text('Ya la tomó'),
-                ),
+                ],
               ],
             )
           else
@@ -409,6 +416,7 @@ Future<void> showDoseSheet(BuildContext context, WidgetRef ref, DoseDetail d) {
       final now = DateTime.now();
       final confirmable =
           d.dose.status == DoseStatus.pending && canConfirm(d.dose.scheduledAt, now, d.treatment.missAfterMin);
+      final scanOnly = ref.read(settingsProvider).value?.requireScan ?? true;
       return SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -449,17 +457,19 @@ Future<void> showDoseSheet(BuildContext context, WidgetRef ref, DoseDetail d) {
                   ),
                 ),
                 const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.pop(sheet);
-                      confirmManually(context, ref, d);
-                    },
-                    child: const Text('Ya la tomó (sin escanear)'),
+                if (!scanOnly) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(sheet);
+                        confirmManually(context, ref, d);
+                      },
+                      child: const Text('Ya la tomó (sin escanear)'),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
+                ],
               ],
               SizedBox(
                 width: double.infinity,

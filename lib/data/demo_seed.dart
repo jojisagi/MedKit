@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../domain/barcode.dart';
 import '../domain/models.dart';
+import '../domain/profile_colors.dart';
 import 'settings_repository.dart';
 
 /// Códigos de demostración con prefijo 200 (reservado por GS1 para uso interno: nunca es un producto real).
@@ -17,13 +18,16 @@ Future<void> seedDemo(Database db, {DateTime? now}) async {
   final at = now ?? DateTime.now();
   final today = DateTime(at.year, at.month, at.day);
   await db.transaction((txn) async {
-    final rosa = await txn.insert(
-      'profiles',
-      Profile(name: 'Rosa', color: 0xFF1F7A5A, createdAt: at).toMap()..remove('id'),
-    );
+    // Colores libres de la paleta (no repetir los de personas ya registradas).
+    final used = [
+      for (final r in await txn.query('profiles', columns: ['color'])) r['color'] as int,
+    ];
+    final cRosa = suggestProfileColor(used);
+    final cLuis = suggestProfileColor([...used, cRosa]);
+    final rosa = await txn.insert('profiles', Profile(name: 'Rosa', color: cRosa, createdAt: at).toMap()..remove('id'));
     final luis = await txn.insert(
       'profiles',
-      Profile(name: 'Don Luis', color: 0xFF2F5FD0, createdAt: at.add(const Duration(seconds: 1))).toMap()..remove('id'),
+      Profile(name: 'Don Luis', color: cLuis, createdAt: at.add(const Duration(seconds: 1))).toMap()..remove('id'),
     );
 
     Future<int> product(Product p) => txn.insert('products', p.toMap()..remove('id'));

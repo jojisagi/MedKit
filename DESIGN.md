@@ -1,4 +1,4 @@
-# Mi Botiquín — Sistema visual
+# Medkit — Sistema visual
 
 Mundo: **señalética de hospital**. Cada integrante de la familia es una línea de color que se sigue, como las franjas pintadas en el piso de una clínica; su próxima toma es la siguiente parada. Modo Operate: Material 3 manda en estructura y controles; el mundo aporta color, tipografía, densidad y un gesto propio.
 
@@ -16,13 +16,17 @@ Tokens en código: `lib/ui/theme.dart` (`Palette`, `SignTokens`, `buildTheme`). 
 | Peligro | `#C8322C` | `#FF8A80` | **Solo** omitida, caducada, caja equivocada, acciones destructivas |
 | Precaución | `#9A6200` | `#FFC94D` | Tardía, caduca pronto, inventario bajo, permisos |
 
-Colores de zona (uno por persona, contraste ≥ 4.5:1 sobre blanco): verde `#1F7A5A`, azul `#2F5FD0`, mostaza `#A0661A`, magenta `#B83A72`, petróleo `#0F7484`, ladrillo `#B4532A`, violeta `#6A4FC4`. En oscuro se aclaran 35 % (`zoneOn`). El color de zona **nunca** aparece sin el nombre de la persona junto.
+Colores de persona (`lib/domain/profile_colors.dart`), 10 tonos, cada persona el suyo (no se repiten mientras haya libres): Verde `#1B6E43`, Azul `#1D6FB3`, Naranja `#B04A0C`, Morado `#9A22AE`, Petróleo `#13797E`, Frambuesa `#C2185B`, Oliva `#6B7516`, Índigo `#4B3FC2`, Café `#5C4628`, Vino `#7A2156`. Todos ≥ 5:1 con texto blanco; separación mínima ΔE2000 = 15 entre cualquier par (calculada), lejos del rojo de omitida, el ámbar de tardía y el marino de las placas. En oscuro se aclaran 35 % (`zoneOn`). El color **nunca** aparece sin el nombre de la persona junto.
 
 ## Tipografía
 
 Atkinson Hyperlegible Next (Braille Institute, OFL), variable 200–800, empaquetada en `assets/fonts`. Elegida por legibilidad para baja visión: público de 30–60 años. Peso aplicado con `FontVariation('wght')` explícito. Toda hora, cantidad y porcentaje usa cifras tabulares (`numerals()`).
 
 Escala: display 56/44/34 · headline 30/26/22 · title 20/17/15 · body 17/16/14 · label 16/14/12.5. Texto base ≥ 16 sp.
+
+## Marca
+
+Banner superior en Inicio (`lib/ui/brand.dart`): placa azul marino a sangre bajo la barra de estado, logo (placa con cruz blanca y línea verde `#2FBF86`, el mismo dibujo del ícono del launcher), «Medkit» en Atkinson 800 a 32 sp, lema «Tu botiquín familiar» y una franja verde de 5 dp que remata el banner como línea de señalética.
 
 ## Forma y espacio
 

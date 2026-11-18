@@ -64,7 +64,7 @@ class _MiBotiquinAppState extends ConsumerState<MiBotiquinApp> with WidgetsBindi
 
   @override
   Widget build(BuildContext context) => MaterialApp.router(
-    title: 'Mi Botiquín',
+    title: 'Medkit',
     debugShowCheckedModeBanner: false,
     theme: buildTheme(Brightness.light),
     darkTheme: buildTheme(Brightness.dark),

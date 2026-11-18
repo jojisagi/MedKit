@@ -1,5 +1,5 @@
-MI BOTIQUÍN — CÓMO SIMULARLA EN LA MAC
-=====================================
+MEDKIT — CÓMO SIMULARLA EN LA MAC
+=================================
 
 La app es solo para Android (SPEC §1), por eso NO se instala en iPhone.
 Se prueba en la Mac con el emulador Android de Android Studio.
@@ -35,7 +35,7 @@ OPCIÓN B — PASO A PASO
 2. Esperar a que aparezca la pantalla de inicio de Android.
 3. Instalar el APK:
        ~/Library/Android/sdk/platform-tools/adb install -r build/app/outputs/flutter-apk/app-release.apk
-4. Abrir "Mi Botiquín" en el emulador (ícono azul marino con cruz blanca).
+4. Abrir "Medkit" en el emulador (ícono azul marino con cruz blanca).
 
 O con Flutter, para desarrollo con recarga en caliente:
        flutter config --jdk-dir=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
@@ -58,7 +58,7 @@ Sin cable: manda el .apk por Drive, Telegram o WhatsApp (como documento), ábrel
 en el teléfono y permite "Instalar apps desconocidas" para esa app.
 
 En Xiaomi/Redmi, para que las notificaciones lleguen con la app cerrada:
-Ajustes → Apps → Mi Botiquín → Ahorro de batería → "Sin restricciones",
+Ajustes → Apps → Medkit → Ahorro de batería → "Sin restricciones",
 y activa "Inicio automático".
 
 
@@ -70,6 +70,8 @@ GUION DE DEMO (unos 5 minutos)
    de cada persona con sus tomas del día.
 3. Espera 2 minutos: llega la notificación "Toma de Rosa" con el botón "Ya la tomé".
    (Para verla: desliza hacia abajo desde arriba de la pantalla del emulador.)
+   Con "Confirmar solo escaneando" (Ajustes, encendido por defecto) el botón de la
+   notificación es "Escanear caja" y abre el escáner de esa toma; apágalo para ver "Ya la tomé".
 4. Confirmar ESCANEANDO (la cámara del emulador no lee códigos reales, así que se
    captura a mano):
      a. Toca "Escanear la caja" en la placa → "Capturar a mano".

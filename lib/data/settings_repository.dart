@@ -4,7 +4,10 @@ class AppSettings {
   final int expiryAlertDays;
   final int lowStockDays;
   final bool demoMode;
-  const AppSettings({this.expiryAlertDays = 30, this.lowStockDays = 5, this.demoMode = false});
+
+  /// Confirmar tomas solo escaneando la caja (o tecleando su código). Encendido por defecto.
+  final bool requireScan;
+  const AppSettings({this.expiryAlertDays = 30, this.lowStockDays = 5, this.demoMode = false, this.requireScan = true});
 }
 
 class SettingsRepository {
@@ -26,6 +29,7 @@ class SettingsRepository {
       expiryAlertDays: int.tryParse(m['expiry_alert_days'] ?? '') ?? 30,
       lowStockDays: int.tryParse(m['low_stock_days'] ?? '') ?? 5,
       demoMode: m['demo_mode'] == '1',
+      requireScan: m['require_scan'] != '0',
     );
   }
 }

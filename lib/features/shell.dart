@@ -7,7 +7,8 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: SafeArea(bottom: false, child: shell),
+    // Inicio dibuja su banner bajo la barra de estado; las demás pestañas respetan el margen.
+    body: SafeArea(top: shell.currentIndex != 0, bottom: false, child: shell),
     bottomNavigationBar: NavigationBar(
       selectedIndex: shell.currentIndex,
       onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),

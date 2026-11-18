@@ -19,7 +19,9 @@ class ProfileLine extends StatelessWidget {
   final int? plateDoseId;
   final void Function(DoseDetail) onOpen;
   final void Function(DoseDetail) onScan;
-  final void Function(DoseDetail) onManual;
+
+  /// null = «Confirmar solo escaneando» activo: no hay botón manual.
+  final void Function(DoseDetail)? onManual;
 
   const ProfileLine({
     super.key,
@@ -74,7 +76,7 @@ class ProfileLine extends StatelessWidget {
                 focusDoseId != null && doses[i].dose.status == DoseStatus.pending && doses[i].dose.id != focusDoseId,
             onOpen: () => onOpen(doses[i]),
             onScan: () => onScan(doses[i]),
-            onManual: () => onManual(doses[i]),
+            onManual: onManual == null ? null : () => onManual!(doses[i]),
           ),
       ],
     );
@@ -87,7 +89,8 @@ class _Stop extends StatelessWidget {
   final DateTime now;
   final bool isFirst, isLast, travelledIn, travelledOut, focus, dimmed, showActions;
   final Duration gapAfter;
-  final VoidCallback onOpen, onScan, onManual;
+  final VoidCallback onOpen, onScan;
+  final VoidCallback? onManual;
 
   const _Stop({
     required this.detail,
@@ -103,7 +106,7 @@ class _Stop extends StatelessWidget {
     this.showActions = true,
     required this.onOpen,
     required this.onScan,
-    required this.onManual,
+    this.onManual,
   });
 
   @override
@@ -142,7 +145,7 @@ class _Stop extends StatelessWidget {
                   icon: const Icon(Icons.qr_code_scanner_rounded),
                   label: const Text('Confirmar escaneando'),
                 ),
-                OutlinedButton(onPressed: onManual, child: const Text('Ya la tomó')),
+                if (onManual != null) OutlinedButton(onPressed: onManual, child: const Text('Ya la tomó')),
               ],
             ),
           ] else if (focus && d.status == DoseStatus.pending && !confirmable) ...[

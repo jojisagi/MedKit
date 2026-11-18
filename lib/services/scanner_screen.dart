@@ -290,7 +290,7 @@ class _CameraError extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               denied
-                  ? 'Puedes permitirla en Ajustes de Android > Apps > Mi Botiquín > Permisos, o escribir el código a mano.'
+                  ? 'Puedes permitirla en Ajustes de Android > Apps > Medkit > Permisos, o escribir el código a mano.'
                   : 'Escribe el número que aparece debajo del código de barras.',
               style: context.text.bodyLarge!.copyWith(color: Palette.onPlateSoft),
               textAlign: TextAlign.center,

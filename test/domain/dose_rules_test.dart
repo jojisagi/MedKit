@@ -11,18 +11,17 @@ Treatment tr({
   required DateTime startsAt,
   DateTime? endsAt,
   double dose = 1,
-}) =>
-    Treatment(
-      id: 1,
-      profileId: 1,
-      productId: 1,
-      dose: dose,
-      scheduleType: type,
-      intervalHours: hours,
-      fixedTimes: times,
-      startsAt: startsAt,
-      endsAt: endsAt,
-    );
+}) => Treatment(
+  id: 1,
+  profileId: 1,
+  productId: 1,
+  dose: dose,
+  scheduleType: type,
+  intervalHours: hours,
+  fixedTimes: times,
+  startsAt: startsAt,
+  endsAt: endsAt,
+);
 
 void main() {
   final s = DateTime(2026, 11, 10, 8);
@@ -43,8 +42,9 @@ void main() {
     });
     test('tolerancias personalizadas', () {
       expect(
-          classifyDose(scheduledAt: s, confirmedAt: s.add(m(2)), now: x, toleranceMin: 1, missAfterMin: 3),
-          DoseStatus.late);
+        classifyDose(scheduledAt: s, confirmedAt: s.add(m(2)), now: x, toleranceMin: 1, missAfterMin: 3),
+        DoseStatus.late,
+      );
       expect(classifyDose(scheduledAt: s, now: s.add(m(4)), toleranceMin: 1, missAfterMin: 3), DoseStatus.missed);
     });
   });
@@ -75,10 +75,11 @@ void main() {
     });
     test('fixed respeta endsAt', () {
       final t = tr(
-          type: ScheduleType.fixed,
-          times: '08:00,20:00',
-          startsAt: DateTime(2026, 11, 1),
-          endsAt: DateTime(2026, 11, 2, 10));
+        type: ScheduleType.fixed,
+        times: '08:00,20:00',
+        startsAt: DateTime(2026, 11, 1),
+        endsAt: DateTime(2026, 11, 2, 10),
+      );
       expect(scheduleBetween(t, DateTime(2026, 11, 1), DateTime(2026, 11, 3)), [
         DateTime(2026, 11, 1, 8),
         DateTime(2026, 11, 1, 20),
